@@ -22,23 +22,23 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#ifndef __HELLOWORLD_SCENE_H__
-#define __HELLOWORLD_SCENE_H__
+//{{NO_DEPENDENCIES}}
+// Microsoft Visual C++ generated include file.
+// Used by game.RC
+//
 
-#include "cocos2d.h"
+#define IDS_PROJNAME                100
+#define IDR_TESTJS    100
 
-class HelloWorld : public cocos2d::Scene
-{
-public:
-    static cocos2d::Scene* createScene();
+#define ID_FILE_NEW_WINDOW            32771
 
-    virtual bool init();
-    
-    // a selector callback
-    void menuCloseCallback(cocos2d::Ref* pSender);
-    
-    // implement the "static create()" method manually
-    CREATE_FUNC(HelloWorld);
-};
-
-#endif // __HELLOWORLD_SCENE_H__
+// Next default values for new objects
+// 
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NEXT_RESOURCE_VALUE    201
+#define _APS_NEXT_CONTROL_VALUE        1000
+#define _APS_NEXT_SYMED_VALUE        101
+#define _APS_NEXT_COMMAND_VALUE        32775
+#endif
+#endif

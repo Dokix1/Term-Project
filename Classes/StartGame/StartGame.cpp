@@ -2,9 +2,9 @@
 #include "StartGame.h"
 #include "CreateRoomScene.h"
 #include "SetMusicScene.h"
+using namespace ui;
 using namespace CocosDenshion;
 USING_NS_CC;
-
 /* 创建一个Scene对象 */
 Scene* StartGameScene::createScene() {
     return StartGameScene::create();
@@ -36,12 +36,11 @@ void StartGameScene::menuSetMusicCallback(Ref* pSender) {
 bool StartGameScene::init() {
     if (!Scene::init()) //初始化
         return false; //初始化失败
-
     auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标    
 
     /* 播放背景音乐 */
-    SimpleAudioEngine::sharedEngine()->playBackgroundMusic("backgrondmusic.mp3", true);
+    SimpleAudioEngine::sharedEngine()->playBackgroundMusic("Music/backgrondmusic.mp3", true);
 
     /* 背景精灵 */
     auto background = Sprite::create("startgame.png");
@@ -67,7 +66,7 @@ bool StartGameScene::init() {
     startItem->setPosition(Vec2(x, y));
 
     /* 设置音效菜单项 */
-    auto setMusic = MenuItemImage::create("setting.png", "setting.png",
+    auto setMusic = MenuItemImage::create("Music/setting.png", "Music/setting.png",
                     CC_CALLBACK_1(StartGameScene::menuSetMusicCallback, this));
     setMusic->setScale(0.5);
     x = origin.x + 11 * visibleSize.width / 12;
@@ -81,3 +80,17 @@ bool StartGameScene::init() {
 
     return true;
 }
+class PopupLayer : public cocos2d::Layer {
+public:
+    virtual bool init() override;
+    CREATE_FUNC(PopupLayer);
+
+    void show();
+    void hide();
+
+private:
+    void onBackgroundClicked(cocos2d::Ref* sender);
+    void onButtonClicked(cocos2d::Ref* sender);
+
+    cocos2d::Menu* buttonMenu;
+};

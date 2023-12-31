@@ -1,151 +1,87 @@
-/****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
- 
- http://www.cocos2d-x.org
- 
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- THE SOFTWARE.
- ****************************************************************************/
-
 #include "AppDelegate.h"
-#include "HelloWorldScene.h"
-
-// #define USE_AUDIO_ENGINE 1
-// #define USE_SIMPLE_AUDIO_ENGINE 1
-
-#if USE_AUDIO_ENGINE && USE_SIMPLE_AUDIO_ENGINE
-#error "Don't use AudioEngine and SimpleAudioEngine at the same time. Please just select one in your game!"
-#endif
-
-#if USE_AUDIO_ENGINE
-#include "audio/include/AudioEngine.h"
-using namespace cocos2d::experimental;
-#elif USE_SIMPLE_AUDIO_ENGINE
-#include "audio/include/SimpleAudioEngine.h"
-using namespace CocosDenshion;
-#endif
-
+#include "LoadingScene.h"
 USING_NS_CC;
 
-static cocos2d::Size designResolutionSize = cocos2d::Size(480, 320);
-static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
-static cocos2d::Size mediumResolutionSize = cocos2d::Size(1024, 768);
-static cocos2d::Size largeResolutionSize = cocos2d::Size(2048, 1536);
+static Size designResolutionSize = Size(1280, 960); //分辨率
+static Size smallResolutionSize = Size(480, 320);
+static Size mediumResolutionSize = Size(1024, 768);
+static Size largeResolutionSize = Size(2048, 1536);
 
-AppDelegate::AppDelegate()
-{
+#define USE_SIMPLE_AUDIO_ENGINE 1 //音频引擎
+#include "audio/include/SimpleAudioEngine.h"
+using namespace CocosDenshion;
+
+/* 构造函数 */
+AppDelegate::AppDelegate() {
+
 }
 
-AppDelegate::~AppDelegate() 
-{
-#if USE_AUDIO_ENGINE
-    AudioEngine::end();
-#elif USE_SIMPLE_AUDIO_ENGINE
-    SimpleAudioEngine::end();
-#endif
+/* 析构函数 */
+AppDelegate::~AppDelegate() {
+    SimpleAudioEngine::end(); //结束音频引擎的使用
 }
 
-// if you want a different context, modify the value of glContextAttrs
-// it will affect all platforms
-void AppDelegate::initGLContextAttrs()
-{
-    // set OpenGL context attributes: red,green,blue,alpha,depth,stencil,multisamplesCount
-    GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8, 0};
-
+/* 设置OpenGL上下文的属性 */
+void AppDelegate::initGLContextAttrs() {
+    GLContextAttrs glContextAttrs = {8, 8, 8, 8, 24, 8, 0}; 
+    //创建GLContextAttrs结构体 设置其成员的值来定义OpenGL上下文的属性
+    //属性：red green blue alpha depth stencil multisamplesCount
     GLView::setGLContextAttrs(glContextAttrs);
+    //将定义好的属性应用到OpenGL视图中
 }
 
-// if you want to use the package manager to install more packages,  
-// don't modify or remove this function
-static int register_all_packages()
-{
-    return 0; //flag for packages manager
+/* 注册所有的包（packages）*/
+static int register_all_packages() {
+    return 0; //包管理器（package manager）的标志值
 }
 
+/* 初始化Director和场景 */
 bool AppDelegate::applicationDidFinishLaunching() {
-    // initialize director
-    auto director = Director::getInstance();
-    auto glview = director->getOpenGLView();
-    if(!glview) {
-#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-        glview = GLViewImpl::createWithRect("TermProject", cocos2d::Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
+    auto director = Director::getInstance(); //初始化Director
+    auto glview = director->getOpenGLView(); //获取当前OpenGL视图
+
+    if(!glview) { //当前没有OpenGL视图
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX) //Windows Mac Linux
+        glview = GLViewImpl::createWithRect("Jinchanchan", Rect(0, 0, designResolutionSize.width, designResolutionSize.height)); //创建一个OpenGL视图
 #else
-        glview = GLViewImpl::create("TermProject");
+        glview = GLViewImpl::create("Jinchanchan");
 #endif
-        director->setOpenGLView(glview);
+        director->setOpenGLView(glview); //将创建的OpenGL设为Director的当前OpenGL视图
     }
 
-    // turn on display FPS
-    director->setDisplayStats(true);
+    //director->setDisplayStats(true); //打开显示帧率的设置
+    director->setAnimationInterval(1.0f / 60); //每秒60帧
 
-    // set FPS. the default value is 1.0/60 if you don't call this
-    director->setAnimationInterval(1.0f / 60);
-
-    // Set the design resolution
-    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER);
-    auto frameSize = glview->getFrameSize();
-    // if the frame's height is larger than the height of medium size.
+    glview->setDesignResolutionSize(designResolutionSize.width, designResolutionSize.height, ResolutionPolicy::NO_BORDER); //设置分辨率
+    auto frameSize = glview->getFrameSize(); //获取当前OpenGL视图大小
+   
     if (frameSize.height > mediumResolutionSize.height)
-    {        
         director->setContentScaleFactor(MIN(largeResolutionSize.height/designResolutionSize.height, largeResolutionSize.width/designResolutionSize.width));
-    }
-    // if the frame's height is larger than the height of small size.
-    else if (frameSize.height > smallResolutionSize.height)
-    {        
+    else if (frameSize.height > smallResolutionSize.height) 
         director->setContentScaleFactor(MIN(mediumResolutionSize.height/designResolutionSize.height, mediumResolutionSize.width/designResolutionSize.width));
-    }
-    // if the frame's height is smaller than the height of medium size.
-    else
-    {        
+    else //≤
         director->setContentScaleFactor(MIN(smallResolutionSize.height/designResolutionSize.height, smallResolutionSize.width/designResolutionSize.width));
-    }
+    
+    register_all_packages(); //注册所有packages
 
-    register_all_packages();
-
-    // create a scene. it's an autorelease object
-    auto scene = HelloWorld::createScene();
-
-    // run
-    director->runWithScene(scene);
+    auto loading = LoadingScene::createScene(); //创建一个LoadingScene场景
+    director->runWithScene(loading); //运行Director 将scene设为当前运行场景
 
     return true;
 }
 
-// This function will be called when the app is inactive. Note, when receiving a phone call it is invoked.
+/* 程序进入后台时调用 */
 void AppDelegate::applicationDidEnterBackground() {
-    Director::getInstance()->stopAnimation();
+    Director::getInstance()->stopAnimation(); //停止动画渲染 即暂停游戏画面的更新
 
-#if USE_AUDIO_ENGINE
-    AudioEngine::pauseAll();
-#elif USE_SIMPLE_AUDIO_ENGINE
-    SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
-    SimpleAudioEngine::getInstance()->pauseAllEffects();
-#endif
+    SimpleAudioEngine::getInstance()->pauseBackgroundMusic(); //暂停背景音乐
+    SimpleAudioEngine::getInstance()->pauseAllEffects(); //暂停所有音效
 }
 
-// this function will be called when the app is active again
+/* 程序重新进入前台时调用 */
 void AppDelegate::applicationWillEnterForeground() {
-    Director::getInstance()->startAnimation();
+    Director::getInstance()->startAnimation(); //开始动画渲染 即恢复游戏画面的更新
 
-#if USE_AUDIO_ENGINE
-    AudioEngine::resumeAll();
-#elif USE_SIMPLE_AUDIO_ENGINE
-    SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
-    SimpleAudioEngine::getInstance()->resumeAllEffects();
-#endif
+    SimpleAudioEngine::getInstance()->resumeBackgroundMusic(); //恢复背景音乐的播放
+    SimpleAudioEngine::getInstance()->resumeAllEffects(); //恢复所有音效的播放
 }
