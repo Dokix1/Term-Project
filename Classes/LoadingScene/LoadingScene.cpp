@@ -36,7 +36,7 @@ bool LoadingScene::init() {
     this->addChild(loadingBar2, 0);
 
     /* 音效预加载 */
-    SimpleAudioEngine::getInstance()->preloadBackgroundMusic("backgrondmusic.mp3");//背景音乐
+    SimpleAudioEngine::getInstance()->preloadBackgroundMusic("backgrondmusic.mp3");//预加载背景音乐
     //SimpleAudioEngine::getInstance()->preloadEffect(".");//音效
 
     /* 进度条内容 */
@@ -63,6 +63,9 @@ bool LoadingScene::init() {
             /* 切换到开始游戏主界面 */
             auto newScene = StartGameScene::create(); //创建开始游戏场景对象
             Director::getInstance()->replaceScene(newScene); //切换场景
+
+            SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/backgrondmusic.mp3", true); //播放背景音乐
+            SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(0.6F); //设置背景音乐的音量
         }
     }, "loading");
 

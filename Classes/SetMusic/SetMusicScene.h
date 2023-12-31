@@ -11,6 +11,7 @@ private:
     Sprite* switchMusic;  //播放开始/暂停
     bool isMusicPlaying;  //音乐播放状态
     Label* volumeLabel;   //滑动条百分比
+
 public:
     static Scene* createScene(); //创建一个Scene
     virtual bool init(); //初始化场景内容
