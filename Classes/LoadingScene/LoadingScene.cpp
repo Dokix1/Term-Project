@@ -24,23 +24,23 @@ bool LoadingScene::init() {
     this->addChild(label, 1); //添加到场景中
 
     /* 背景精灵 */
-    auto background = Sprite::create("Loading.png");
+    auto background = Sprite::create("Background/loading.png");
     background->setContentSize(Size(visibleSize.width, visibleSize.height));
     background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     this->addChild(background, 0);
 
     /* 进度条背景 */
-    auto loadingBar2 = Sprite::create("loadingbar2.png");
+    auto loadingBar2 = Sprite::create("Bar/loadingbar2.png");
     loadingBar2->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     loadingBar2->setScale(2);
     this->addChild(loadingBar2, 0);
 
     /* 音效预加载 */
-    SimpleAudioEngine::getInstance()->preloadBackgroundMusic("backgrondmusic.mp3");//预加载背景音乐
+    SimpleAudioEngine::getInstance()->preloadBackgroundMusic("Music/backgrondmusic.mp3");//背景音乐
     //SimpleAudioEngine::getInstance()->preloadEffect(".");//音效
 
     /* 进度条内容 */
-    auto loadingBar1 = ProgressTimer::create(Sprite::create("loadingbar1.png")); //创建进度条
+    auto loadingBar1 = ProgressTimer::create(Sprite::create("Bar/loadingbar1.png")); //创建进度条
     loadingBar1->setType(ProgressTimer::Type::BAR); //设为条形
     loadingBar1->setScale(2); //放大2倍
     loadingBar1->setMidpoint(Vec2(0, 0)); //进度条的起点位置
@@ -63,11 +63,10 @@ bool LoadingScene::init() {
             /* 切换到开始游戏主界面 */
             auto newScene = StartGameScene::create(); //创建开始游戏场景对象
             Director::getInstance()->replaceScene(newScene); //切换场景
-
             SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/backgrondmusic.mp3", true); //播放背景音乐
             SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(0.6F); //设置背景音乐的音量
         }
-    }, "loading");
+        }, "loading");
 
     return true;
 }

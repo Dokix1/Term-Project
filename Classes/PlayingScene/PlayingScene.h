@@ -2,6 +2,8 @@
 #define __PLAYING_SCENE_H__
 
 #include "cocos2d.h"
+#include "hero.h"
+#include "ui/CocosGUI.h"
 USING_NS_CC;
 
 /* PlayingScene类 */
@@ -21,6 +23,9 @@ public:
     void shoponButtonClicked(Ref* sender);
     void uponButtonClicked(Ref* sender);
     CREATE_FUNC(PlayingScene); //自动创建一个实例
+
+    bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
+    static void randCard();
 };
 
 #endif
