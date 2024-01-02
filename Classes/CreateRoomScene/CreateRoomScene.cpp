@@ -1,8 +1,8 @@
 #include "SimpleAudioEngine.h"
 #include "CreateRoomScene.h"
-#include "PlayingScene.h"
-#include "StartGame.h"
-#include "SetMusicScene.h"
+#include "../PlayingScene/PlayingScene.h"
+#include "../StartGame/StartGame.h"
+#include "../SetMusic/SetMusicScene.h"
 USING_NS_CC;
 
 /* 创建一个Scene对象 */

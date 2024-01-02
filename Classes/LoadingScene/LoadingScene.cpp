@@ -1,6 +1,6 @@
 #include "LoadingScene.h"
 #include "SimpleAudioEngine.h"
-#include "StartGame.h"
+#include"..\StartGame\StartGame.h"
 using namespace CocosDenshion;
 USING_NS_CC;
 

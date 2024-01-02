@@ -1,8 +1,8 @@
 #include "SimpleAudioEngine.h"
 #include "SetMusicScene.h"
-#include "StartGame.h"
-#include "CreateRoomScene.h"
-#include "PlayingScene.h"
+#include "../StartGame/StartGame.h"
+#include "../CreateRoomScene/CreateRoomScene.h"
+#include "../PlayingScene/PlayingScene.h"
 using namespace CocosDenshion;
 USING_NS_CC;
 

@@ -1,8 +1,8 @@
 #include "SimpleAudioEngine.h"
-#include "PlayingScene.h"
+#include"..\PlayingScene\PlayingScene.h"
 #include <string>
 #include <utility>
-#include "PopupLayer.h"
+#include"PopupLayer.h"
 USING_NS_CC;
 using namespace CocosDenshion;
 using namespace std;
@@ -28,60 +28,84 @@ void PopupLayer::Cardsinit() {
             switch (heroCard[i].first) {
                 case 0:
                     heroCard[i].second = new HeroPhysicalTank(false, 1);
-                    heroCard[i].second->setTexture("Hero/hero0.png");
+                    heroCard[i].second->setTexture("Hero/hero00.png");
                     break;
                 case 1:
                     heroCard[i].second = new HeroMagicTank(false, 1);
-                    heroCard[i].second->setTexture("Hero/hero1.png");
+                    heroCard[i].second->setTexture("Hero/hero10.png");
                     break;
                 case 2:
                     heroCard[i].second = new HeroPhysicalWarrior(false, 1);
-                    heroCard[i].second->setTexture("Hero/hero2.png");
+                    heroCard[i].second->setTexture("Hero/hero20.png");
                     break;
                 case 3:
                     heroCard[i].second = new HeroMagicalWarrior(false, 1);
-                    heroCard[i].second->setTexture("Hero/hero3.png");
+                    heroCard[i].second->setTexture("Hero/hero30.png");
                     break;
                 case 4:
                     heroCard[i].second = new HeroMarksman(false, 1);
-                    heroCard[i].second->setTexture("Hero/hero4.png");
+                    heroCard[i].second->setTexture("Hero/hero40.png");
                     break;
                 case 5:
                     heroCard[i].second = new HeroMage(false, 1);
-                    heroCard[i].second->setTexture("Hero/hero5.png");
+                    heroCard[i].second->setTexture("Hero/hero50.png");
                     break;
             }
 
-            heroCard[i].second->setRotation(180);
-            heroCard[i].second->setPosition(Vec2(300 + 200 * i, 874.5));
-            heroCard[i].second->setScale(1.5F);
+            heroCard[i].second->setFlippedX(false);
+            heroCard[i].second->setFlippedY(false);
+            heroCard[i].second->setPosition(Vec2(156 + 200 * i, 696));
             this->addChild(heroCard[i].second, 1);
         }
 
 }
-
+//void showCoordinates(Vec2 touchPos) {
+//
+//    std::string message = "X: " + std::to_string(touchPos.x) + ", Y: " + std::to_string(touchPos.y);
+//
+//    MessageBox(message.c_str(), "Coordinates");
+//}
 bool PopupLayer::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
     Vec2 touchPos = touch->getLocation(); //获取触摸位置
-
+    //showCoordinates(touchPos);
     /* 判断触摸位置是否在弹窗内部 */
     if ((140 <= touchPos.x && touchPos.x <= 1140 && 643 <= touchPos.y && touchPos.y <= 893) ||
         (1026.25 <= touchPos.x && touchPos.x <= 1213.75 && 26.25 <= touchPos.y && touchPos.y <= 213.75)) {
-        int i = (touchPos.x - 140) / 200;
-        if (heroCard[i].first != -1)
-            for (int j = 0; j < 9; j++)
-                if (prepare[j].first == -1) { //将卡牌移动到备战区域
-                    heroCard[i].second->setScale(0.8F);
-
-                    prepare[j].first = heroCard[i].first;
-                    prepare[j].second = heroCard[i].second;
-
-                    heroCard[i].first = -1;
-                    heroCard[i].second = nullptr;
-
-                    prepare[j].second->setPosition(Vec2(310 + 87.25 * j, 207));
-                    return true;
-                }
-        //触摸在弹窗内部，不关闭弹窗，继续传递触摸事件
+        if ((140 <= touchPos.x && touchPos.x <= 1140 && 643 <= touchPos.y && touchPos.y <= 893)) {
+            int i = (touchPos.x - 140) / 200;
+            if (heroCard[i].first != -1)
+                for (int j = 0; j < 9; j++)
+                    if (prepare[j].first == -1) { //将卡牌移动到备战区域
+                        prepare[j].first = heroCard[i].first;
+                        prepare[j].second = heroCard[i].second;
+                        heroCard[i].first = -1;
+                        heroCard[i].second = nullptr;
+                        switch (prepare[j].first) {
+                        case 0:
+                            prepare[j].second->setTexture("Hero/hero01.png");
+                            break;
+                        case 1:
+                            prepare[j].second->setTexture("Hero/hero11.png");
+                            break;
+                        case 2:
+                            prepare[j].second->setTexture("Hero/hero21.png");
+                            break;
+                        case 3:
+                            prepare[j].second->setTexture("Hero/hero31.png");
+                            break;
+                        case 4:
+                            prepare[j].second->setTexture("Hero/hero41.png");
+                            break;
+                        case 5:
+                            prepare[j].second->setTexture("Hero/hero51.png");
+                            break;
+                        }
+                        prepare[j].second->setScale(1.2F);
+                        prepare[j].second->setPosition(Vec2(240 + 87.25 * j, 150));
+                        return true;
+                    }
+            //触摸在弹窗内部，不关闭弹窗，继续传递触摸事件
+        }
     }
     else { //触摸在弹窗外部，关闭弹窗
         hide();

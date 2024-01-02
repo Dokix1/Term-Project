@@ -1,12 +1,12 @@
 #include "SimpleAudioEngine.h"
 #include "PlayingScene.h"
-#include "StartGame.h"
-#include "SetMusicScene.h"
+#include "../StartGame/StartGame.h"
+#include "../SetMusic/SetMusicScene.h"
 #include <vector>
 #include <time.h>
 #include <string>
 #include <utility>
-#include "PopupLayer.h"
+#include "../PopupLayer/PopupLayer.h"
 USING_NS_CC;
 using namespace CocosDenshion;
 using namespace std;
@@ -16,15 +16,18 @@ Button* shopbutton;
 Button* upbutton;
 Button* rebutton;
 
+Sprite* chooseground;
+
 const int numRows = 6; //行
 const int numCols = 6; //列
 const float tileSize = 90.0F; //格子大小
 int selectedHeroIndex = -1;
 
+pair<int, Hero*> my_hero=make_pair(-1,nullptr);
 pair<int, Hero*> heroCard[5] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr} }; //卡牌
 pair<int, Hero*> prepare[9] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr} }; //备战
 
-vector<vector<Hero*>> chessboard(numRows, vector<Hero*>(numCols, nullptr)); //棋盘数组
+vector<vector<pair<int,Hero*>>> chessboard(numRows, vector<pair<int,Hero*>>(numCols,make_pair(-1, nullptr))); //棋盘数组
 
 void findNearestHero(int i, int j, bool opponent, int& x, int& y);
 pair<int, int> isWithinAttackRange(int x, int y, bool opponent);
@@ -56,50 +59,117 @@ void PlayingScene::shoponButtonClicked(Ref* sender) {
     auto popupLayer = PopupLayer::create();
     this->addChild(popupLayer);
 }
+void PlayingScene::onMouseDown(EventMouse* event)
+{
+    Vec2 mousePos = event->getLocation();
+    mousePos.y = Director::getInstance()->getWinSize().height - mousePos.y;
 
-bool PlayingScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
-    Vec2 touchPos = touch->getLocation(); //获取触摸位置
-
-    /* 实现英雄移动 */
-    for (int i = 0; i < 9; i++) { //遍历备战区域
-        if (selectedHeroIndex != -1) {
-            /* 判断卡牌是否在棋盘范围内 */
-            if (touchPos.x >= 310 && touchPos.x <= 310 + tileSize * 6 &&
-                touchPos.y >= 210 && touchPos.y <= 210 + tileSize * 6) {
-                //将选中的英雄移动到棋盘上的触摸位置
-                //确定卡牌在棋盘上的位置
-                int row = (touchPos.y - 210) / tileSize;
-                int col = (touchPos.x - 310) / tileSize;
-                //计算卡牌在6*6棋盘上的坐标
-                float cardX = 310 + col * tileSize + tileSize / 2;
-                float cardY = 210 + row * tileSize + tileSize / 2;
-                prepare[selectedHeroIndex].second->setPosition(cardX, cardY);
-
-                chessboard[row][col] = prepare[selectedHeroIndex].second; //添加到棋盘数组
-                prepare[selectedHeroIndex].second->release(); //释放卡牌
-            }
-            else { //取消选中并恢复英雄的原始状态
-                //prepare[selectedHeroIndex].second->setOutlineColor(Color4B::WHITE); //恢复轮廓颜色
-                //prepare[selectedHeroIndex].second->setOutlineWidth(0); //恢复轮廓宽度
-            }
-            selectedHeroIndex = -1; // 重置选中的英雄索引
-            return true;
-        }
-
-        if (prepare[i].first != -1 && prepare[i].second->getBoundingBox().containsPoint(touchPos)) {
-            //触摸位置是否在备战区域的英雄上
-            selectedHeroIndex = i; //设置选中的英雄索引
-            prepare[i].second->retain();  //防止英雄被释放
-            //prepare[i].second->setOutlineColor(Color4B::YELLOW); //将轮廓颜色改为黄色
-            //prepare[i].second->setOutlineWidth(5); //增加轮廓宽度以提高可见性
-
-            return true; //选中
+    //备战区
+    for (int i = 0; i < 9; i++) {
+        if (mousePos.x >= 243.75 + 87.25 * i && mousePos.x <= 286.75 + 87.25 * i && mousePos.y >= 156 && mousePos.y <= 219&&prepare[i].first!=-1) {
+            my_hero.first = prepare[i].first;
+            my_hero.second = prepare[i].second;
+            initialPosition = my_hero.second->getPosition();
+            prepare[i].first = -1;
+            prepare[i].second = nullptr;
+            isDragging = true;
+            chooseground->setVisible(true);
+            break;
         }
     }
-
-    return false; //未选中
+    //棋盘
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 6; j++) {
+            if (mousePos.x >= 274 + 118.4 * j && mousePos.x <= 364 + 118.4 * j && mousePos.y >= 305+71.2*i && mousePos.y <= 352+71.2*i && chessboard[i][j].first != -1) {
+                my_hero.first = chessboard[i][j].first;
+                my_hero.second = chessboard[i][j].second;
+                initialPosition = my_hero.second->getPosition();
+                chessboard[i][j].first = -1;
+                chessboard[i][j].second = nullptr;
+                isDragging = true;
+                chooseground->setVisible(true);
+            }
+        }
+    }
 }
 
+void PlayingScene::onMouseMove(EventMouse* event)
+{
+    if (isDragging)
+    {
+        Vec2 mousePos = event->getLocation();
+        mousePos.y = Director::getInstance()->getWinSize().height - mousePos.y;
+        my_hero.second->setPosition(Vec2(mousePos.x-30, mousePos.y - 35));
+    }
+}
+
+void PlayingScene::onMouseUp(EventMouse* event)
+{
+    if (isDragging)
+    {
+        isDragging = false;
+
+        Vec2 mousePos = event->getLocation();
+        mousePos.y = Director::getInstance()->getWinSize().height - mousePos.y;
+        //备战区
+        for (int i = 0; i < 9; i++) {
+            if (mousePos.x >= 243.75 + 87.25 * i && mousePos.x <= 286.75 + 87.25 * i && mousePos.y >= 156 && mousePos.y <= 219 && prepare[i].first == -1) {
+                prepare[i].first = my_hero.first;
+                prepare[i].second= my_hero.second;
+                prepare[i].second->setPosition(Vec2(240 + 87.25 * i, 150));
+                my_hero.first = -1;
+                my_hero.second = nullptr;
+                chooseground->setVisible(false);
+                break;
+            }
+        }
+        if (my_hero.first == -1)
+            return;
+        //棋盘
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 6; j++) {
+                if (mousePos.x >= 274 + 118.4 * j && mousePos.x <= 364 + 118.4 * j && mousePos.y >= 305 + 71.2 * i && mousePos.y <= 352 + 71.2 * i && chessboard[i][j].first == -1) {
+                    chessboard[i][j].first = my_hero.first;
+                    chessboard[i][j].second = my_hero.second;
+                    chessboard[i][j].second->setPosition(Vec2(290 + 118.4 * j, 295 + 71.2 * i));
+                    my_hero.first = -1;
+                    my_hero.second = nullptr;
+                    chooseground->setVisible(false);
+                    break;
+                }
+            }
+        }
+        if (my_hero.first == -1)
+            return;
+        for (int i = 0; i < 9; i++) {
+            if (initialPosition==Vec2(240 + 87.25 * i, 150)) {
+                prepare[i].first = my_hero.first;
+                prepare[i].second = my_hero.second;
+                prepare[i].second->setPosition(initialPosition);
+                my_hero.first = -1;
+                my_hero.second = nullptr;
+                chooseground->setVisible(false);
+                break;
+            }
+        }
+        if (my_hero.first == -1)
+            return;
+        //棋盘
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 6; j++) {
+                if (initialPosition==Vec2(290+118.4*j,295+71.2*i)){
+                    chessboard[i][j].first = my_hero.first;
+                    chessboard[i][j].second = my_hero.second;
+                    chessboard[i][j].second->setPosition(Vec2(initialPosition.x,initialPosition.y));
+                    my_hero.first = -1;
+                    my_hero.second = nullptr;
+                    chooseground->setVisible(false);
+                    break;
+                }
+            }
+        }
+    }
+}
 /*倒计时*/
 void PlayingScene::updateProgressBar(float dt) {
     //计算剩余时间
@@ -155,7 +225,11 @@ bool PlayingScene::init() {
     background->setContentSize(Size(visibleSize.width, visibleSize.height));
     background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     this->addChild(background, 0);
-
+    chooseground = Sprite::create("ChessBoard/choose.png");
+    chooseground->setContentSize(Size(visibleSize.width, visibleSize.height));
+    chooseground->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    this->addChild(chooseground, 0);
+    chooseground->setVisible(false);
     randCard(); //初始化卡牌
 
     /* 退出本局游戏菜单项 */
@@ -220,10 +294,11 @@ bool PlayingScene::init() {
     schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
 
     //点击屏幕触发英雄移动
-    auto touchListener = EventListenerTouchOneByOne::create();
-    touchListener->setSwallowTouches(true);
-    touchListener->onTouchBegan = CC_CALLBACK_2(PlayingScene::onTouchBegan, this);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(touchListener, this);
+    auto touchlistener = EventListenerMouse::create();
+    touchlistener->onMouseDown = CC_CALLBACK_1(PlayingScene::onMouseDown, this);
+    touchlistener->onMouseMove = CC_CALLBACK_1(PlayingScene::onMouseMove, this);
+    touchlistener->onMouseUp = CC_CALLBACK_1(PlayingScene::onMouseUp, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(touchlistener, this);
 
     return true;
 }
@@ -236,7 +311,7 @@ void findNearestHero(int i, int j, bool opponent, int& x, int& y) {
 
     for (int m = 0; m < numRows; m++)
         for (int n = 0; n < numCols; n++)
-            if (chessboard[m][n]->isRed() == opponent) {
+            if (chessboard[m][n].second->isRed() == opponent) {
                 int tmp = abs((m - i) * (n - j)); //计算距离的平方
                 if (distance > tmp) {
                     distance = tmp;
@@ -248,11 +323,11 @@ void findNearestHero(int i, int j, bool opponent, int& x, int& y) {
 
 /* 判断是否在攻击范围内 */
 pair<int, int> isWithinAttackRange(int x, int y, bool opponent) {
-    int attackRange = chessboard[x][y]->getAttackDistance(); //获取攻击范围
+    int attackRange = chessboard[x][y].second->getAttackDistance(); //获取攻击范围
 
     for (int i = 0; i < numRows; i++)
         for (int j = 0; j < numCols; j++)
-            if (chessboard[i][j]->isRed() == opponent) { //该格子有对方英雄
+            if (chessboard[i][j].second->isRed() == opponent) { //该格子有对方英雄
                 int distance = (x - i) + (y - j); //计算距离
                 if (distance <= attackRange)
                     return { i,j }; //可以攻击，返回对方英雄坐标
@@ -269,14 +344,14 @@ void moveHero() {
         /* 遍历棋盘的每一个格子 */
         for (int i = 0; i < numRows; i++)
             for (int j = 0; j < numCols; j++) 
-                if (chessboard[i][j] != NULL&& chessboard[i][j]!=nullptr) {
+                if (chessboard[i][j].second!=nullptr) {
                     noFight = false; //存在未对战英雄
-                    bool currentPlayer = chessboard[i][j]->isRed(); //1对方 0己方
+                    bool currentPlayer = chessboard[i][j].second->isRed(); //1对方 0己方
 
                     pair<int, int> pos = isWithinAttackRange(i, j, !currentPlayer);
                     if (pos.first != -1) {
-                        Hero* h1 = chessboard[i][j];
-                        Hero* h2 = chessboard[pos.first][pos.second];
+                        Hero* h1 = chessboard[i][j].second;
+                        Hero* h2 = chessboard[pos.first][pos.second].second;
                         //在攻击范围内，进行攻击
                         //实现攻击的逻辑，伤害计算、动画播放
                     }
@@ -296,13 +371,13 @@ void moveHero() {
                         toY = (y > j) ? j + 1 : j - 1;
 
                     /* 移动英雄 */
-                    chessboard[toX][toY] = chessboard[i][j];
-                    chessboard[i][j] = nullptr;
+                    chessboard[toX][toY].second = chessboard[i][j].second;
+                    chessboard[i][j].second = nullptr;
 
                     pos = isWithinAttackRange(toX, toY, !currentPlayer);
                     if (pos.first != -1) {
-                        Hero* h1 = chessboard[toX][toY];
-                        Hero* h2 = chessboard[pos.first][pos.second];
+                        Hero* h1 = chessboard[toX][toY].second;
+                        Hero* h2 = chessboard[pos.first][pos.second].second;
                         //在攻击范围内，进行攻击
                         //实现攻击的逻辑，伤害计算、动画播放
                     }

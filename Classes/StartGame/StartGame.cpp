@@ -1,7 +1,7 @@
 #include "SimpleAudioEngine.h"
-#include "StartGame.h"
-#include "CreateRoomScene.h"
-#include "SetMusicScene.h"
+#include"StartGame.h"
+#include"..\CreateRoomScene\CreateRoomScene.h"
+#include "..\SetMusic\SetMusicScene.h"
 using namespace ui;
 using namespace CocosDenshion;
 USING_NS_CC;
