@@ -353,8 +353,6 @@ bool PlayingScene::init() {
     listener->onTouchBegan = CC_CALLBACK_2(PlayingScene::onTouchBeganLITTLE, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
 
-
-
     return true;
 }
 
