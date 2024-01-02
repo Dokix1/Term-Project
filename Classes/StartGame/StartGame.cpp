@@ -1,10 +1,11 @@
 #include "SimpleAudioEngine.h"
-#include "StartGame.h"
-#include "CreateRoomScene.h"
-#include "SetMusicScene.h"
+#include"StartGame.h"
+#include"..\CreateRoomScene\CreateRoomScene.h"
+#include "..\SetMusic\SetMusicScene.h"
 using namespace ui;
 using namespace CocosDenshion;
 USING_NS_CC;
+
 /* 创建一个Scene对象 */
 Scene* StartGameScene::createScene() {
     return StartGameScene::create();
@@ -12,7 +13,7 @@ Scene* StartGameScene::createScene() {
 
 /* 点击后退出游戏 */
 void StartGameScene::menuCloseCallback(Ref* pSender) {
-    SimpleAudioEngine::sharedEngine()->end(); //释放所有声音资源
+    //SimpleAudioEngine::sharedEngine()->end(); //释放所有声音资源
     Director::getInstance()->end(); //结束游戏循环
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
@@ -28,29 +29,27 @@ void StartGameScene::menuCreateRoomCallback(Ref* pSender) {
 
 /* 点击后调节音效 */
 void StartGameScene::menuSetMusicCallback(Ref* pSender) {
-    auto newScene = SetMusicScene::create(); 
-    Director::getInstance()->replaceScene(newScene); 
+    auto newScene = SetMusicScene::create();
+    Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
 }
 
 /* 初始化StartGameScene场景内容 */
 bool StartGameScene::init() {
     if (!Scene::init()) //初始化
         return false; //初始化失败
+
     auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标    
 
-    /* 播放背景音乐 */
-    SimpleAudioEngine::sharedEngine()->playBackgroundMusic("Music/backgrondmusic.mp3", true);
-
     /* 背景精灵 */
-    auto background = Sprite::create("startgame.png");
+    auto background = Sprite::create("Background/startgame.png");
     background->setContentSize(Size(visibleSize.width, visibleSize.height));
     background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     this->addChild(background, 0);
 
     /* 退出程序菜单项 */
-    auto closeItem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png", 
-                     CC_CALLBACK_1(StartGameScene::menuCloseCallback, this));
+    auto closeItem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png",
+        CC_CALLBACK_1(StartGameScene::menuCloseCallback, this));
     float scale = 5.0;
     closeItem->setScale(4); //放大4倍
     float x = origin.x + visibleSize.width - closeItem->getContentSize().width * scale / 2;
@@ -58,16 +57,16 @@ bool StartGameScene::init() {
     closeItem->setPosition(Vec2(x, y)); //设置显示位置
 
     /* 开始游戏菜单项 */
-    auto startItem = MenuItemImage::create("Start.png", "Start.png",
-                     CC_CALLBACK_1(StartGameScene::menuCreateRoomCallback, this));
-    startItem->setScale(1.3);
+    auto startItem = MenuItemImage::create("Buttons/Start.png", "Buttons/Start.png",
+        CC_CALLBACK_1(StartGameScene::menuCreateRoomCallback, this));
+    startItem->setScale(1.3F);
     x = origin.x + visibleSize.width / 6;
     y = origin.y + visibleSize.height / 5;
     startItem->setPosition(Vec2(x, y));
 
     /* 设置音效菜单项 */
     auto setMusic = MenuItemImage::create("Music/setting.png", "Music/setting.png",
-                    CC_CALLBACK_1(StartGameScene::menuSetMusicCallback, this));
+        CC_CALLBACK_1(StartGameScene::menuSetMusicCallback, this));
     setMusic->setScale(0.5);
     x = origin.x + 11 * visibleSize.width / 12;
     y = origin.y + 8 * visibleSize.height / 9;
@@ -77,7 +76,6 @@ bool StartGameScene::init() {
     auto menu = Menu::create(closeItem, startItem, setMusic, nullptr); //添加菜单项
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
-
     return true;
 }
 class PopupLayer : public cocos2d::Layer {

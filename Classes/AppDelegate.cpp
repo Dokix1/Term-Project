@@ -1,5 +1,5 @@
 #include "AppDelegate.h"
-#include "LoadingScene.h"
+#include"LoadingScene/LoadingScene.h"
 USING_NS_CC;
 
 static Size designResolutionSize = Size(1280, 960); //·Ö±æÂÊ
