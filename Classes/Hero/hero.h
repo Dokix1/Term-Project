@@ -117,7 +117,9 @@ public:
     int getLevel() {
         return level;
     }
-
+    void upLevel() {
+        level++;
+    }
     virtual void attackEnemy() {
 
     }

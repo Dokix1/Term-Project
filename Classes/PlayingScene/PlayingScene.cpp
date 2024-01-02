@@ -12,9 +12,21 @@ using namespace CocosDenshion;
 using namespace std;
 using namespace ui;
 
+int coinCount = 5;
+int populutionCount = 0;
+int my_level = 3;
+
+extern void CardsState();
+extern void reButtonState(Button* button);
+
 Button* shopbutton;
 Button* upbutton;
 Button* rebutton;
+
+Label* coinLabel;
+Label* upLabel;
+Label* poLabel;
+Label* levelLabel;
 
 Sprite* chooseground;
 
@@ -29,10 +41,31 @@ pair<int, Hero*> prepare[9] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1,
 
 vector<vector<pair<int,Hero*>>> chessboard(numRows, vector<pair<int,Hero*>>(numCols,make_pair(-1, nullptr))); //棋盘数组
 
-void findNearestHero(int i, int j, bool opponent, int& x, int& y);
-pair<int, int> isWithinAttackRange(int x, int y, bool opponent);
-void moveHero();
-
+//更新升级按钮状态
+void updateButtonState(Button* button)
+{
+    if (coinCount < 2 * my_level - 2) {
+        button->setEnabled(false); // 当金币小于升级所需金币时禁用按钮
+        upbutton->loadTextures("buttons/UpgradeSelected.png", "buttons/UpgradeSelected.png", "buttons/UpgradeSelected.png");
+        upLabel->setTextColor(Color4B::RED);
+    }
+    else {
+        button->setEnabled(true); // 否则启用按钮
+        upbutton->loadTextures("buttons/UpgradeNormal.png", "buttons/UpgradeSelected.png", "buttons/UpgradeSelected.png");
+        upLabel->setTextColor(Color4B::WHITE);
+    }
+}
+void shopLabelState() {
+    coinLabel->setString(to_string(coinCount));
+}
+//更新人口状态
+void PoState() {
+    poLabel->setString(to_string(populutionCount) + " / " + to_string(my_level));
+    if (populutionCount < my_level)
+        poLabel->setTextColor(Color4B::WHITE);
+    else
+        poLabel->setTextColor(Color4B::RED);
+}
 /* 随机生成牌库 初始化卡牌 */
 void PlayingScene::randCard() {
     srand(time(0));
@@ -52,67 +85,21 @@ void PlayingScene::menuCloseCallback(Ref* pSender) {
     Director::getInstance()->replaceScene(newScene); //切换到主界面
 }
 
-
-//小小英雄移动
-void PlayingScene::moveSpriteTo(Vec2 destination) {
-   
-    // 限制目标位置在边界内
-    if ((destination.x > 200 && destination.x < 1050) && (destination.y > 250 && destination.y < 800))
-    {
-        // 创建精灵，并设置位置
-        auto click = CCSprite::create("click.png");
-        click->setPosition(destination);
-        // 将精灵添加到场景
-        addChild(click, 0);
-        auto delay = DelayTime::create(0.25f);
-        auto removeAction = CallFunc::create([this, click]() {
-            // 移除精灵
-            click->removeFromParent();
-            });
-        click->runAction(Sequence::create(delay, removeAction, nullptr));
-
-        // 计算精灵当前位置和目标位置的距离
-        float distance = m_pSprite->getPosition().getDistance(destination);
-
-        // 计算移动的时间，假设每秒移动300个像素
-        float duration = distance / 300.0f;
-
-        // 创建一个移动动作
-        auto moveToAction = MoveTo::create(duration, destination);
-
-        // 运行移动动作
-        m_pSprite->runAction(moveToAction);
-    }
-}
-
-
-
-//小小英雄读入鼠标
-bool PlayingScene::onTouchBeganLITTLE(Touch* touch, Event* event)
-{
-
-
-    // 停止当前正在进行的移动动作
-    m_pSprite->stopAllActions();
-
-    // 获取鼠标点击的位置
-    Vec2 touchLocation = touch->getLocation();
-
-
-    
-    // 调用移动函数，将精灵移动到鼠标点击的位置
-    moveSpriteTo(touchLocation);
-
-    return true;  // 返回true表示消耗了该事件
-}
-
-
 void PlayingScene::shoponButtonClicked(Ref* sender) {
 
     shopbutton->setEnabled(false);
     shopbutton->loadTextures("buttons/ShopSelected.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
     auto popupLayer = PopupLayer::create();
     this->addChild(popupLayer);
+}
+void PlayingScene::uponButtonClicked(Ref* sender) {
+    coinCount -= (2 * my_level - 2);
+    my_level++;
+    upLabel->setString(to_string(2 * my_level - 2));
+    levelLabel->setString(to_string(my_level));
+    PoState();
+    updateButtonState(upbutton);
+    shopLabelState();
 }
 void PlayingScene::onMouseDown(EventMouse* event)
 {
@@ -143,6 +130,7 @@ void PlayingScene::onMouseDown(EventMouse* event)
                 chessboard[i][j].second = nullptr;
                 isDragging = true;
                 chooseground->setVisible(true);
+                populutionCount--;
             }
         }
     }
@@ -155,6 +143,7 @@ void PlayingScene::onMouseMove(EventMouse* event)
         Vec2 mousePos = event->getLocation();
         mousePos.y = Director::getInstance()->getWinSize().height - mousePos.y;
         my_hero.second->setPosition(Vec2(mousePos.x-30, mousePos.y - 35));
+        PoState();
     }
 }
 
@@ -166,6 +155,17 @@ void PlayingScene::onMouseUp(EventMouse* event)
 
         Vec2 mousePos = event->getLocation();
         mousePos.y = Director::getInstance()->getWinSize().height - mousePos.y;
+        //出售区
+        if (mousePos.x >= 0.050 * 1280 && mousePos.x <= 0.150 * 1280 && 0.450 * 960 <= mousePos.y && 0.550 * 960 >= mousePos.y) {
+            coinCount += (my_hero.second->getCost()*pow(3,my_hero.second->getLevel()-1));
+            my_hero.first = -1;
+            my_hero.second->removeFromParent();
+            my_hero.second = nullptr;
+            updateButtonState(upbutton);
+            shopLabelState();
+            return;
+        }
+
         //备战区
         for (int i = 0; i < 9; i++) {
             if (mousePos.x >= 243.75 + 87.25 * i && mousePos.x <= 286.75 + 87.25 * i && mousePos.y >= 156 && mousePos.y <= 219 && prepare[i].first == -1) {
@@ -174,6 +174,7 @@ void PlayingScene::onMouseUp(EventMouse* event)
                 prepare[i].second->setPosition(Vec2(240 + 87.25 * i, 150));
                 my_hero.first = -1;
                 my_hero.second = nullptr;
+                PoState();
                 chooseground->setVisible(false);
                 break;
             }
@@ -183,17 +184,20 @@ void PlayingScene::onMouseUp(EventMouse* event)
         //棋盘
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 6; j++) {
-                if (mousePos.x >= 274 + 118.4 * j && mousePos.x <= 364 + 118.4 * j && mousePos.y >= 305 + 71.2 * i && mousePos.y <= 352 + 71.2 * i && chessboard[i][j].first == -1) {
+                if (mousePos.x >= 274 + 118.4 * j && mousePos.x <= 364 + 118.4 * j && mousePos.y >= 305 + 71.2 * i && mousePos.y <= 352 + 71.2 * i && chessboard[i][j].first == -1 && populutionCount < my_level) {
                     chessboard[i][j].first = my_hero.first;
                     chessboard[i][j].second = my_hero.second;
                     chessboard[i][j].second->setPosition(Vec2(290 + 118.4 * j, 295 + 71.2 * i));
                     my_hero.first = -1;
                     my_hero.second = nullptr;
+                    populutionCount++;
+                    PoState();
                     chooseground->setVisible(false);
                     break;
                 }
             }
         }
+        //备战区
         if (my_hero.first == -1)
             return;
         for (int i = 0; i < 9; i++) {
@@ -203,6 +207,7 @@ void PlayingScene::onMouseUp(EventMouse* event)
                 prepare[i].second->setPosition(initialPosition);
                 my_hero.first = -1;
                 my_hero.second = nullptr;
+                PoState();
                 chooseground->setVisible(false);
                 break;
             }
@@ -218,6 +223,8 @@ void PlayingScene::onMouseUp(EventMouse* event)
                     chessboard[i][j].second->setPosition(Vec2(initialPosition.x,initialPosition.y));
                     my_hero.first = -1;
                     my_hero.second = nullptr;
+                    populutionCount++;
+                    PoState();
                     chooseground->setVisible(false);
                     break;
                 }
@@ -254,15 +261,6 @@ void PlayingScene::menuSetMusicCallback(Ref* pSender) {
     Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
 }
 
-void PlayingScene::uponButtonClicked(Ref* sender) {
-    // 触发英雄移动操作
-    if (selectedHeroIndex != -1) {
-        // 处理英雄移动逻辑
-
-        selectedHeroIndex = -1; // 重置选中的英雄索引
-    }
-}
-
 /* 初始化PlayingScene场景内容 */
 bool PlayingScene::init() {
     if (!Scene::init()) //初始化
@@ -283,6 +281,17 @@ bool PlayingScene::init() {
     chooseground = Sprite::create("ChessBoard/choose.png");
     chooseground->setContentSize(Size(visibleSize.width, visibleSize.height));
     chooseground->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    //人口标签
+    poLabel = Label::createWithTTF(to_string(populutionCount)+" / "+to_string(my_level), "fonts/Marker Felt.ttf", 88);
+    poLabel->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height * 3 / 4 + origin.y));
+    chooseground->addChild(poLabel);
+    this->addChild(chooseground, 0);
+    //出售区
+    auto sale = Sprite::create("ChessBoard/garbage.png");
+    sale->setContentSize(Size(visibleSize.width, visibleSize.height));
+    sale->setScale(0.25);
+    sale->setPosition(Vec2(0.100 * visibleSize.width, 0.500 * visibleSize.height));
+    chooseground->addChild(sale);
     this->addChild(chooseground, 0);
     chooseground->setVisible(false);
     randCard(); //初始化卡牌
@@ -314,12 +323,42 @@ bool PlayingScene::init() {
     shopbutton->setPosition(Vec2(0.875 * visibleSize.width, 0.125 * visibleSize.height));
     shopbutton->addClickEventListener(CC_CALLBACK_1(PlayingScene::shoponButtonClicked, this));
     addChild(shopbutton);
+    /*展示金币*/
+    coinLabel = Label::createWithTTF(to_string(coinCount), "fonts/Marker Felt.ttf", 36);
+    coinLabel->setPosition(Vec2(0.888 * visibleSize.width, 0.125 * visibleSize.height));
+    this->addChild(coinLabel);
+
 
     /* 创建按钮 */ 
     upbutton = Button::create("buttons/UpgradeNormal.png", "buttons/UpgradeSelected.png");
-    upbutton->setPosition(Vec2(0.125 * visibleSize.width, 0.130 * visibleSize.height));
+    upbutton->setPosition(Vec2(0.100 * visibleSize.width, 0.130 * visibleSize.height));
     upbutton->addClickEventListener(CC_CALLBACK_1(PlayingScene::uponButtonClicked, this));
     addChild(upbutton);
+    /*展示购买等级所需金币*/
+    upLabel = Label::createWithTTF(to_string(2 * my_level - 2), "fonts/Marker Felt.ttf", 36);
+    upLabel->setPosition(Vec2(0.100 * visibleSize.width, 0.140 * visibleSize.height));
+    this->addChild(upLabel);
+    /*展示等级*/
+    levelLabel = Label::createWithTTF(to_string(my_level), "fonts/Marker Felt.ttf", 36);
+    levelLabel->setPosition(Vec2(0.155 * visibleSize.width, 0.055 * visibleSize.height));
+    this->addChild(levelLabel);
+    updateButtonState(upbutton);
+
+    /* 创建小小英雄+血条 */
+    m_pSprite = CCSprite::create("LittleHero/ikun.png");
+    m_pblood = CCSprite::create("bloodbar/littleblood.png");
+    m_pbloodback = CCSprite::create("bloodbar/littlebloodback.png");
+    // 放置精灵 我方
+    m_pSprite->setPosition(ccp(185, 276));
+    m_pbloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
+    m_pblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
+    m_pbloodback->setPosition(ccp(120, 160));
+    m_pbloodback->setScale(0.4);
+    m_pblood->setPosition(ccp(72, 80));
+
+    m_pSprite->addChild(m_pbloodback);
+    m_pbloodback->addChild(m_pblood, 1);
+    addChild(m_pSprite, 0);
 
     /* 倒计时 */
 
@@ -337,12 +376,12 @@ bool PlayingScene::init() {
     addChild(timer);
 
     //创建时间标签
-    timeLabel = cocos2d::Label::createWithTTF("", "fonts/arial.ttf", 24);
+    timeLabel = cocos2d::Label::createWithTTF("", "fonts/Marker Felt.ttf", 24);
     timeLabel->setPosition(visibleSize.width * 0.325, visibleSize.height / 40 * 39);
     addChild(timeLabel);
 
     //初始化时间
-    totalTime = 20.0f;
+    totalTime = 10.0f;
     currentTime = totalTime;
 
     //启动定时器
@@ -355,135 +394,5 @@ bool PlayingScene::init() {
     touchlistener->onMouseUp = CC_CALLBACK_1(PlayingScene::onMouseUp, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchlistener, this);
 
-    /* 创建小小英雄+血条 */
-    m_pSprite = CCSprite::create("ikun.png");
-    m_pblood = CCSprite::create("blood bar/littleblood.png");
-    m_pbloodback = CCSprite::create("blood bar/littlebloodback.png");
-
-    m_penemy = CCSprite::create("enemy.png");
-    m_penemyblood = CCSprite::create("blood bar/enemyblood.png");
-    m_penemybloodback = CCSprite::create("blood bar/littlebloodback.png");
-
-    // 放置精灵 我方
-    m_pSprite->setPosition(ccp(185, 276));
-    m_pbloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
-    m_pblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
-    m_pbloodback->setPosition(ccp(120, 160));
-    m_pbloodback->setScale(0.4);
-    m_pblood->setPosition(ccp(72, 80));
-
-    m_pSprite->addChild(m_pbloodback);
-    m_pbloodback->addChild(m_pblood,1);
-    addChild(m_pSprite,0);
-
-    //敌方
-    m_penemy->setPosition(ccp(1020, 800));
-    m_penemybloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
-    m_penemyblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
-    m_penemybloodback->setPosition(ccp(130, 140));
-    m_penemybloodback->setScale(0.4);
-    m_penemyblood->setPosition(ccp(72, 80));
-
-    m_penemy->addChild(m_penemybloodback);
-    m_penemybloodback->addChild(m_penemyblood, 1);
-    addChild(m_penemy, 0);
-    
-
-    //小小英雄扣血
-    //m_pblood->setScaleX(0.75);
-    //m_penemyblood->setScaleX(0.5);
-    
-    // 设置鼠标点击事件监听
-    auto listener = EventListenerTouchOneByOne::create();
-    listener->onTouchBegan = CC_CALLBACK_2(PlayingScene::onTouchBeganLITTLE, this);
-    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-
-
-
     return true;
-}
-
-/* 寻找距离最近的对方英雄 */
-void findNearestHero(int i, int j, bool opponent, int& x, int& y) {
-    int distance = numRows * numCols; //初始化距离为最大可能值
-    x = -1;
-    y = -1;
-
-    for (int m = 0; m < numRows; m++)
-        for (int n = 0; n < numCols; n++)
-            if (chessboard[m][n].second->isRed() == opponent) {
-                int tmp = abs((m - i) * (n - j)); //计算距离的平方
-                if (distance > tmp) {
-                    distance = tmp;
-                    x = m;
-                    y = n;
-                }
-            }
-}
-
-/* 判断是否在攻击范围内 */
-pair<int, int> isWithinAttackRange(int x, int y, bool opponent) {
-    int attackRange = chessboard[x][y].second->getAttackDistance(); //获取攻击范围
-
-    for (int i = 0; i < numRows; i++)
-        for (int j = 0; j < numCols; j++)
-            if (chessboard[i][j].second->isRed() == opponent) { //该格子有对方英雄
-                int distance = (x - i) + (y - j); //计算距离
-                if (distance <= attackRange)
-                    return { i,j }; //可以攻击，返回对方英雄坐标
-            }
-
-    return { -1, -1 }; //没有在攻击范围内的对方英雄
-}
-
-/* 英雄移动 */
-void moveHero() {
-    while (1) {
-        bool noFight = true; //是否存在未对战的英雄的标志
-
-        /* 遍历棋盘的每一个格子 */
-        for (int i = 0; i < numRows; i++)
-            for (int j = 0; j < numCols; j++) 
-                if (chessboard[i][j].second!=nullptr) {
-                    noFight = false; //存在未对战英雄
-                    bool currentPlayer = chessboard[i][j].second->isRed(); //1对方 0己方
-
-                    pair<int, int> pos = isWithinAttackRange(i, j, !currentPlayer);
-                    if (pos.first != -1) {
-                        Hero* h1 = chessboard[i][j].second;
-                        Hero* h2 = chessboard[pos.first][pos.second].second;
-                        //在攻击范围内，进行攻击
-                        //实现攻击的逻辑，伤害计算、动画播放
-                    }
-
-                    int x, y;
-                    findNearestHero(i, j, !currentPlayer, x, y); //寻找距离当前位置最近的对方英雄
-
-                    int toX, toY; //移动后的位置
-                    if (x == i)
-                        toX = i;
-                    else
-                        toX = (x > i) ? i + 1 : i - 1;
-
-                    if (y == j)
-                        toY = j;
-                    else
-                        toY = (y > j) ? j + 1 : j - 1;
-
-                    /* 移动英雄 */
-                    chessboard[toX][toY].second = chessboard[i][j].second;
-                    chessboard[i][j].second = nullptr;
-
-                    pos = isWithinAttackRange(toX, toY, !currentPlayer);
-                    if (pos.first != -1) {
-                        Hero* h1 = chessboard[toX][toY].second;
-                        Hero* h2 = chessboard[pos.first][pos.second].second;
-                        //在攻击范围内，进行攻击
-                        //实现攻击的逻辑，伤害计算、动画播放
-                    }
-                }      
-            
-        if (noFight)
-            break;
-    }
 }
