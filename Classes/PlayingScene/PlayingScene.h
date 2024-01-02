@@ -36,7 +36,13 @@ public:
 
     //在这里我们定义一个精灵指针。
     CCSprite* m_pSprite;
-
+    CCSprite* m_penemy;
+    CCSprite* m_pblood;
+    CCSprite* m_pbloodback;
+    CCSprite* m_penemyblood;
+    CCSprite* m_penemybloodback;
+    int littlehero_max_blood = 100;
+    int littlehero_current_blood = 100;
 };
 
 #endif

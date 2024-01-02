@@ -55,9 +55,22 @@ void PlayingScene::menuCloseCallback(Ref* pSender) {
 
 //小小英雄移动
 void PlayingScene::moveSpriteTo(Vec2 destination) {
+   
     // 限制目标位置在边界内
     if ((destination.x > 200 && destination.x < 1050) && (destination.y > 250 && destination.y < 800))
     {
+        // 创建精灵，并设置位置
+        auto click = CCSprite::create("click.png");
+        click->setPosition(destination);
+        // 将精灵添加到场景
+        addChild(click, 0);
+        auto delay = DelayTime::create(0.25f);
+        auto removeAction = CallFunc::create([this, click]() {
+            // 移除精灵
+            click->removeFromParent();
+            });
+        click->runAction(Sequence::create(delay, removeAction, nullptr));
+
         // 计算精灵当前位置和目标位置的距离
         float distance = m_pSprite->getPosition().getDistance(destination);
 
@@ -85,6 +98,8 @@ bool PlayingScene::onTouchBeganLITTLE(Touch* touch, Event* event)
     // 获取鼠标点击的位置
     Vec2 touchLocation = touch->getLocation();
 
+
+    
     // 调用移动函数，将精灵移动到鼠标点击的位置
     moveSpriteTo(touchLocation);
 
@@ -327,7 +342,7 @@ bool PlayingScene::init() {
     addChild(timeLabel);
 
     //初始化时间
-    totalTime = 10.0f;
+    totalTime = 20.0f;
     currentTime = totalTime;
 
     //启动定时器
@@ -340,18 +355,50 @@ bool PlayingScene::init() {
     touchlistener->onMouseUp = CC_CALLBACK_1(PlayingScene::onMouseUp, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchlistener, this);
 
-    /* 创建小小英雄 */
+    /* 创建小小英雄+血条 */
     m_pSprite = CCSprite::create("ikun.png");
+    m_pblood = CCSprite::create("blood bar/littleblood.png");
+    m_pbloodback = CCSprite::create("blood bar/littlebloodback.png");
 
-    // 放置精灵
+    m_penemy = CCSprite::create("enemy.png");
+    m_penemyblood = CCSprite::create("blood bar/enemyblood.png");
+    m_penemybloodback = CCSprite::create("blood bar/littlebloodback.png");
+
+    // 放置精灵 我方
     m_pSprite->setPosition(ccp(185, 276));
+    m_pbloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
+    m_pblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
+    m_pbloodback->setPosition(ccp(120, 160));
+    m_pbloodback->setScale(0.4);
+    m_pblood->setPosition(ccp(72, 80));
 
-    addChild(m_pSprite,1);
+    m_pSprite->addChild(m_pbloodback);
+    m_pbloodback->addChild(m_pblood,1);
+    addChild(m_pSprite,0);
 
+    //敌方
+    m_penemy->setPosition(ccp(1020, 800));
+    m_penemybloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
+    m_penemyblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
+    m_penemybloodback->setPosition(ccp(130, 140));
+    m_penemybloodback->setScale(0.4);
+    m_penemyblood->setPosition(ccp(72, 80));
+
+    m_penemy->addChild(m_penemybloodback);
+    m_penemybloodback->addChild(m_penemyblood, 1);
+    addChild(m_penemy, 0);
+    
+
+    //小小英雄扣血
+    //m_pblood->setScaleX(0.75);
+    //m_penemyblood->setScaleX(0.5);
+    
     // 设置鼠标点击事件监听
     auto listener = EventListenerTouchOneByOne::create();
     listener->onTouchBegan = CC_CALLBACK_2(PlayingScene::onTouchBeganLITTLE, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+
+
 
     return true;
 }
