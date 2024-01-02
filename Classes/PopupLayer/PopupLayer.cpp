@@ -55,7 +55,9 @@ void PopupLayer::Cardsinit() {
             heroCard[i].second->setFlippedX(false);
             heroCard[i].second->setFlippedY(false);
             heroCard[i].second->setPosition(Vec2(156 + 200 * i, 696));
-            this->addChild(heroCard[i].second, 1);
+            heroCard[i].second->setOpacity(255);
+            this->addChild(heroCard[i].second);
+
         }
 
 }
@@ -134,13 +136,13 @@ bool PopupLayer::init() {
     rebutton->addClickEventListener(CC_CALLBACK_1(PopupLayer::reonButtonClicked, this));
     addChild(rebutton);
 
+    Cardsinit(); //初始化卡牌
+    
     /* 点击屏幕外关闭/移动英雄到棋盘 */
     listener = EventListenerTouchOneByOne::create();
     listener->setSwallowTouches(true);
     listener->onTouchBegan = CC_CALLBACK_2(PopupLayer::onTouchBegan, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-
-    Cardsinit(); //初始化卡牌
 
     return true;
 }

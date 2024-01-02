@@ -52,6 +52,46 @@ void PlayingScene::menuCloseCallback(Ref* pSender) {
     Director::getInstance()->replaceScene(newScene); //切换到主界面
 }
 
+
+//小小英雄移动
+void PlayingScene::moveSpriteTo(Vec2 destination) {
+    // 限制目标位置在边界内
+    if ((destination.x > 200 && destination.x < 1050) && (destination.y > 250 && destination.y < 800))
+    {
+        // 计算精灵当前位置和目标位置的距离
+        float distance = m_pSprite->getPosition().getDistance(destination);
+
+        // 计算移动的时间，假设每秒移动300个像素
+        float duration = distance / 300.0f;
+
+        // 创建一个移动动作
+        auto moveToAction = MoveTo::create(duration, destination);
+
+        // 运行移动动作
+        m_pSprite->runAction(moveToAction);
+    }
+}
+
+
+
+//小小英雄读入鼠标
+bool PlayingScene::onTouchBeganLITTLE(Touch* touch, Event* event)
+{
+
+
+    // 停止当前正在进行的移动动作
+    m_pSprite->stopAllActions();
+
+    // 获取鼠标点击的位置
+    Vec2 touchLocation = touch->getLocation();
+
+    // 调用移动函数，将精灵移动到鼠标点击的位置
+    moveSpriteTo(touchLocation);
+
+    return true;  // 返回true表示消耗了该事件
+}
+
+
 void PlayingScene::shoponButtonClicked(Ref* sender) {
 
     shopbutton->setEnabled(false);
@@ -299,6 +339,21 @@ bool PlayingScene::init() {
     touchlistener->onMouseMove = CC_CALLBACK_1(PlayingScene::onMouseMove, this);
     touchlistener->onMouseUp = CC_CALLBACK_1(PlayingScene::onMouseUp, this);
     _eventDispatcher->addEventListenerWithSceneGraphPriority(touchlistener, this);
+
+    /* 创建小小英雄 */
+    m_pSprite = CCSprite::create("ikun.png");
+
+    // 放置精灵
+    m_pSprite->setPosition(ccp(185, 276));
+
+    addChild(m_pSprite,1);
+
+    // 设置鼠标点击事件监听
+    auto listener = EventListenerTouchOneByOne::create();
+    listener->onTouchBegan = CC_CALLBACK_2(PlayingScene::onTouchBeganLITTLE, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+
+
 
     return true;
 }

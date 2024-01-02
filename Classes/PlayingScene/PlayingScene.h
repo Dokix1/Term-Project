@@ -29,8 +29,14 @@ public:
     void onMouseUp(EventMouse* event);
     CREATE_FUNC(PlayingScene); //自动创建一个实例
 
+    void moveSpriteTo(Vec2 destination);
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
+    bool onTouchBeganLITTLE(Touch* touch, Event* event);
     static void randCard();
+
+    //在这里我们定义一个精灵指针。
+    CCSprite* m_pSprite;
+
 };
 
 #endif
