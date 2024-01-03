@@ -11,24 +11,18 @@ Scene* CreateRoomScene::createScene() {
 }
 /* 点击后调节音效 */
 void CreateRoomScene::menuSetMusicCallback(Ref* pSender) {
-
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = SetMusicScene::create();
     Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
 }
 
 /* 点击后返回主界面 */
 void CreateRoomScene::menuCloseCallback(Ref* pSender) {
-
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = StartGameScene::create(); //主界面
     Director::getInstance()->replaceScene(newScene); //切换到主界面
 }
 
 /* 点击后进入游戏界面 */
 void CreateRoomScene::menuStartGameCallback(Ref* pSender) {
-
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = PlayingScene::create(); //游戏界面
     Director::getInstance()->replaceScene(newScene); //切换到游戏界面
 }

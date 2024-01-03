@@ -8,6 +8,7 @@
 #include <string>
 #include <utility>
 #include "../PopupLayer/PopupLayer.h"
+#include "../AI/AI.h"
 USING_NS_CC;
 using namespace CocosDenshion;
 using namespace std;
@@ -17,18 +18,12 @@ int coinCount = 5;
 int populutionCount = 0;
 int my_level = 3;
 
-bool pop_open = false;
-
 extern void CardsState();
 extern void reButtonState(Button* button);
 
 Button* shopbutton;
 Button* upbutton;
 Button* rebutton;
-
-PopupLayer* popupLayer;
-
-PlayingScene* playscene;
 
 Label* coinLabel;
 Label* upLabel;
@@ -43,7 +38,7 @@ const int sizeX = 118.4;
 const int sizeY = 71.2;
 
 Sprite* chooseground;
-
+AI ai;
 const int numRows = 6; //行
 const int numCols = 6; //列
 const float tileSize = 90.0F; //格子大小
@@ -89,6 +84,7 @@ void PoState() {
     else
         poLabel->setTextColor(Color4B::RED);
 }
+
 /* 随机生成牌库 初始化卡牌 */
 void PlayingScene::randCard() {
     srand(time(0));
@@ -104,8 +100,6 @@ Scene* PlayingScene::createScene() {
 
 /* 点击后返回主界面 */
 void PlayingScene::menuCloseCallback(Ref* pSender) {
-    
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     //卡牌
     for (int i = 0; i < 5; i++)
         if (heroCard[i].second != nullptr) {
@@ -118,8 +112,6 @@ void PlayingScene::menuCloseCallback(Ref* pSender) {
             prepare[i].second->release(); //释放卡牌
             prepare[i] = { -1, nullptr };
         }
-    my_level = 3;
-    coinCount = 0;
 
     auto newScene = StartGameScene::create(); //主界面
     Director::getInstance()->replaceScene(newScene); //切换到主界面
@@ -127,16 +119,12 @@ void PlayingScene::menuCloseCallback(Ref* pSender) {
 
 void PlayingScene::shoponButtonClicked(Ref* sender) {
 
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     shopbutton->setEnabled(false);
     shopbutton->loadTextures("buttons/ShopSelected.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
-    pop_open = true;
-    popupLayer = PopupLayer::create();
+    auto popupLayer = PopupLayer::create();
     this->addChild(popupLayer);
 }
 void PlayingScene::uponButtonClicked(Ref* sender) {
-
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     coinCount -= (2 * my_level - 2);
     my_level++;
     upLabel->setString(to_string(2 * my_level - 2));
@@ -145,6 +133,7 @@ void PlayingScene::uponButtonClicked(Ref* sender) {
     updateButtonState(upbutton);
     shopLabelState();
 }
+
 void PlayingScene::onMouseDown(EventMouse* event)
 {
     Vec2 mousePos = event->getLocation();
@@ -179,6 +168,7 @@ void PlayingScene::onMouseDown(EventMouse* event)
         }
     }
 }
+
 
 void PlayingScene::onMouseMove(EventMouse* event)
 {
@@ -295,29 +285,26 @@ void PlayingScene::updateProgressBar(float dt) {
     //检查是否时间已经用完
     if (currentTime <= 0) {
         unschedule(schedule_selector(PlayingScene::updateProgressBar));
-        if (pop_open) {
-            popupLayer->hide();
-        }
-        if (isDragging) {
-            auto dispatcher = Director::getInstance()->getEventDispatcher();
-            auto mouseEvent = EventMouse::MouseEventType::MOUSE_UP;
-
-            // 模拟鼠标左键松开事件
-            EventMouse event(mouseEvent);
-            event.setMouseButton(EventMouse::MouseButton::BUTTON_LEFT);
-            event.setCursorPosition(0, 0);
-            dispatcher->dispatchEvent(&event);
-        }
-        playscene = dynamic_cast<PlayingScene*>(Director::getInstance()->getRunningScene());
+        
         auto newScene = BattleScene::create();
         Director::getInstance()->pushScene(newScene);
     }
 }
 
+void PlayingScene::onEnterTransitionDidFinish()
+{
+    Scene::onEnterTransitionDidFinish();
+
+   
+    ai.AIbettle();
+
+    // 重新开始倒计时
+    currentTime = totalTime;
+    schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
+}
+
 /* 点击后调节音效 */
 void PlayingScene::menuSetMusicCallback(Ref* pSender) {
-
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = SetMusicScene::create();
     Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
 }
@@ -350,6 +337,7 @@ bool PlayingScene::init() {
     chooseground = Sprite::create("ChessBoard/choose.png");
     chooseground->setContentSize(Size(visibleSize.width, visibleSize.height));
     chooseground->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+
     //人口标签
     poLabel = Label::createWithTTF(to_string(populutionCount)+" / "+to_string(my_level), "fonts/Marker Felt.ttf", 88);
     poLabel->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height * 3 / 4 + origin.y));
@@ -402,10 +390,12 @@ bool PlayingScene::init() {
     upbutton->setPosition(Vec2(0.100 * visibleSize.width, 0.130 * visibleSize.height));
     upbutton->addClickEventListener(CC_CALLBACK_1(PlayingScene::uponButtonClicked, this));
     addChild(upbutton);
+
     /*展示购买等级所需金币*/
     upLabel = Label::createWithTTF(to_string(2 * my_level - 2), "fonts/Marker Felt.ttf", 36);
     upLabel->setPosition(Vec2(0.100 * visibleSize.width, 0.140 * visibleSize.height));
     this->addChild(upLabel);
+
     /*展示等级*/
     levelLabel = Label::createWithTTF(to_string(my_level), "fonts/Marker Felt.ttf", 36);
     levelLabel->setPosition(Vec2(0.155 * visibleSize.width, 0.055 * visibleSize.height));
@@ -449,7 +439,7 @@ bool PlayingScene::init() {
     addChild(timeLabel);
 
     //初始化时间
-    totalTime = 10.0f;
+    totalTime = 1.0f;
     currentTime = totalTime;
 
     //启动定时器

@@ -11,6 +11,7 @@ public:
     CREATE_FUNC(PopupLayer); //实例化PopupLayer
 
     void Cardsinit(); //初始化卡牌
+    void AICardsinit();
 
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event); //处理触摸事件
 

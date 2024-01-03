@@ -13,15 +13,11 @@ Scene* SetMusicScene::createScene() {
 
 /* 点击后返回主界面 */
 void SetMusicScene::menuCloseCallback(Ref* pSender) {
-
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     Director::getInstance()->popScene();
 }
 
 /* 播放/暂停背景音乐 */
 bool SetMusicScene::onSwitchMusicTouched(Touch* touch, Event* event) {
-
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     /* 正在播放 */
     if (isMusicPlaying) {
         SimpleAudioEngine::getInstance()->pauseBackgroundMusic(); //暂停音乐

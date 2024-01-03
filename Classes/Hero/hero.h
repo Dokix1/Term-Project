@@ -62,7 +62,7 @@ public:
     int getAPdefect() {
         return APdefect;
     }
-
+    
     /* »ñÈ¡ÑªÁ¿ */
     int getHP() {
         return HP;
