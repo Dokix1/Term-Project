@@ -322,17 +322,6 @@ void PlayingScene::updateProgressBar(float dt) {
     }
 }
 
-void PlayingScene::onEnterTransitionDidFinish()
-{
-    Scene::onEnterTransitionDidFinish();
-
-    ai.AIbettle();
-
-    // 重新开始倒计时
-    currentTime = totalTime;
-    schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
-}
-
 /* 点击后调节音效 */
 void PlayingScene::menuSetMusicCallback(Ref* pSender) {
 
