@@ -112,7 +112,6 @@ void AI::AIbettle() {
     AICardsinit();
 
     money += 5;
-    
     population = 0;
     for (int i = 3; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
@@ -123,7 +122,6 @@ void AI::AIbettle() {
             }
         }
     }
-
 
     if (population < AIlevel) {
         countprepare = 0;
