@@ -291,6 +291,7 @@ void BattleScene::Battle() {
     int myHero = 0; //我方英雄数
     int opHero = 0; //对方英雄数
     vector<Hero*>mHero, oHero;
+
     for (int i = 0; i < numRows; i++) {
         for (int j = 0; j < numCols; j++) {
             if (chessboardBattle[i][j].second != nullptr) {
@@ -305,7 +306,8 @@ void BattleScene::Battle() {
             }
         }
     }
-    while(opHero && myHero) {
+
+    while (opHero && myHero) {
         for (int i = 0; i < mHero.size(); i++) {
             if (mHero[i] == nullptr) {
                 continue;
@@ -317,45 +319,78 @@ void BattleScene::Battle() {
                     continue;
                 }
                 float distance = mHero[i]->getPosition().distance(oHero[j]->getPosition());
-                    if (distance <= mindistance) {
-                        mindistance = distance;
-                        min_no = j;
+                if (distance <= mindistance) {
+                    mindistance = distance;
+                    min_no = j;
                 }
             }
-            if (mindistance <= mHero[i]->getAttackDistance()) {
+
+            //if (mindistance <= mHero[i]->getAttackDistance()) {
+            if (min_no != -1) {
                 oHero[min_no]->changeHP((1 - oHero[min_no]->getDefect() / 200) * mHero[i]->getAttack() + (1 - oHero[min_no]->getAPdefect() / 200) * mHero[i]->getAP());
                 if (oHero[min_no]->getHP() <= 0) {
                     opHero--;
                     oHero[min_no]->removeFromParent();
+                    oHero[min_no]->release();
                     oHero[min_no] = nullptr;
                 }
             }
-            //else {
-            //    
-            //    auto moveTo = MoveTo::create(5.0f, Vec2(640,480)); // 创建 MoveBy 动作，使精灵向右移动 100 距离
-            //    Vec2 orgin = mHero[i]->getPosition();
-            //    mHero[i]->runAction(moveTo);
-            //    auto func = std::bind([]( Vec2 orgin, Sprite* sprite) {
-            //        auto currentPosition = sprite->getPosition();
-            //        if (currentPosition.distance(orgin) >= 50) {
-            //            sprite->stopAllActions();
-            //        }
-            //        }, orgin, mHero[i]);
-            //    schedule(func, "check_distance");
-            //}
+            /* else {
+                 float moveDistance = 100.0f; // 移动距离
+                 Vec2 targetPosition = oHero[min_no]->getPosition(); // 目标位置为与当前我方英雄最近的对方英雄的位置
+                 Vec2 direction = (targetPosition - mHero[i]->getPosition()).getNormalized(); // 移动方向向量
+
+                 Vec2 destination = mHero[i]->getPosition() + direction * moveDistance; // 计算目标移动位置
+
+                 // 创建 MoveTo 动作，使英雄向目标位置移动
+                 auto moveTo = MoveTo::create(5.0f, destination);
+                 mHero[i]->runAction(moveTo);
+
+                 auto func = [i, targetPosition, destination, this, mHero](float dt) {
+                     Vec2 currentPosition = mHero[i]->getPosition();
+                     float distance = currentPosition.distance(destination);
+                     if (distance <=5) {
+                         mHero[i]->stopAllActions();
+                         this->unschedule("check_distance");
+                     }
+                     };
+
+                 this->schedule(func, "check_distance");
+             }*/
+
+             //else {
+             //    
+             //    auto moveTo = MoveTo::create(5.0f, Vec2(640,480)); // 创建 MoveBy 动作，使精灵向右移动 100 距离
+             //    Vec2 orgin = mHero[i]->getPosition();
+             //    mHero[i]->runAction(moveTo);
+             //    auto func = std::bind([]( Vec2 orgin, Sprite* sprite) {
+             //        auto currentPosition = sprite->getPosition();
+             //        if (currentPosition.distance(orgin) >= 50) {
+             //            sprite->stopAllActions();
+             //        }
+             //        }, orgin, mHero[i]);
+             //    schedule(func, "check_distance");
+             //}
         }
 
         for (int i = 0; i < oHero.size(); i++) {
+            if (oHero[i] == nullptr) {
+                continue;
+            }
             float mindistance = 999999;
             int min_no = -1;
             for (int j = 0; j < mHero.size(); j++) {
+                if (mHero[j] == nullptr) {
+                    continue;
+                }
                 float distance = oHero[i]->getPosition().distance(mHero[j]->getPosition());
                 if (distance <= mindistance) {
                     mindistance = distance;
                     min_no = j;
                 }
             }
-            if (mindistance < oHero[i]->getAttackDistance()) {
+            //if (mindistance < oHero[i]->getAttackDistance()) {
+            if (min_no != -1) {
                 mHero[min_no]->changeHP((1 - mHero[min_no]->getDefect() / 200) * oHero[i]->getAttack() + (1 - mHero[min_no]->getAPdefect() / 200) * oHero[i]->getAP());
                 if (mHero[min_no]->getHP() <= 0) {
                     myHero--;
@@ -365,10 +400,32 @@ void BattleScene::Battle() {
                     mHero.erase(mHero.begin() + min_no);
                 }
             }
-            /*else {
-                auto moveBy = MoveBy::create(1.0f, 100 * (mHero[min_no]->getPosition() - oHero[i]->getPosition()).getNormalized());
-                oHero[i]->runAction(moveBy);
-            }*/
+            /* else {
+                 float moveDistance = 100.0f; // 移动距离
+                 Vec2 targetPosition = mHero[min_no]->getPosition(); // 目标位置为与当前我方英雄最近的对方英雄的位置
+                 Vec2 direction = (targetPosition - oHero[i]->getPosition()).getNormalized(); // 移动方向向量
+
+                 Vec2 destination = oHero[i]->getPosition() + direction * moveDistance; // 计算目标移动位置
+
+                 // 创建 MoveTo 动作，使英雄向目标位置移动
+                 auto moveTo = MoveTo::create(5.0f, destination);
+                 oHero[i]->runAction(moveTo);
+
+                 auto func = [i, targetPosition, destination, this, oHero](float dt) {
+                     Vec2 currentPosition = oHero[i]->getPosition();
+                     float distance = currentPosition.distance(destination);
+                     if (distance <= 5) {
+                         oHero[i]->stopAllActions();
+                         this->unschedule("check_distance");
+                     }
+                     };
+
+                 this->schedule(func, "check_distance");
+             }*/
+             /*else {
+                 auto moveBy = MoveBy::create(1.0f, 100 * (mHero[min_no]->getPosition() - oHero[i]->getPosition()).getNormalized());
+                 oHero[i]->runAction(moveBy);
+             }*/
         }
     }
     auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
@@ -381,13 +438,9 @@ void BattleScene::Battle() {
 
     if (myHero) { //胜利        
         label->setString("Win!");
-        enemyhero_current_blood -= 20;
-        m_penemyblood->setScale(enemyhero_current_blood / enemyhero_max_blood);
     }
     else { //失败
         label->setString("Lose.");
-        littlehero_current_blood -= 20;
-        m_pblood->setScale(littlehero_current_blood / littlehero_max_blood);
     }
 
     this->scheduleOnce([&](float dt) {
