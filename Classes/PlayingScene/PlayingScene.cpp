@@ -1,13 +1,13 @@
 #include "SimpleAudioEngine.h"
 #include "PlayingScene.h"
-#include "../StartGame/StartGame.h"
-#include "../SetMusic/SetMusicScene.h"
-#include"../BattleScene/BattleScene.h"
+#include "StartGame.h"
+#include "BattleScene.h"
+#include "SetMusicScene.h"
 #include <vector>
 #include <time.h>
 #include <string>
 #include <utility>
-#include "../PopupLayer/PopupLayer.h"
+#include "PopupLayer.h"
 USING_NS_CC;
 using namespace CocosDenshion;
 using namespace std;
@@ -29,6 +29,13 @@ Label* upLabel;
 Label* poLabel;
 Label* levelLabel;
 
+const int boardX_min = 261;
+const int boardX_max = 974;
+const int boardY_min = 294;
+const int boardY_max = 722;
+const int sizeX = 118.4;
+const int sizeY = 71.2;
+
 Sprite* chooseground;
 
 const int numRows = 6; //行
@@ -41,6 +48,15 @@ pair<int, Hero*> heroCard[5] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1
 pair<int, Hero*> prepare[9] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr} }; //备战
 
 vector<vector<pair<int,Hero*>>> chessboard(numRows, vector<pair<int,Hero*>>(numCols,make_pair(-1, nullptr))); //棋盘数组
+
+void puthero(Hero* h, int col, int row) {
+    chessboard[col][row].first = 1;
+    chessboard[col][row].second = h;
+
+    float cardX = boardX_min + (col + 0.75) * sizeX;
+    float cardY = boardY_min + (row + 1) * sizeY;
+    chessboard[col][row].second->setPosition(cardX, cardY);
+}
 
 //更新升级按钮状态
 void updateButtonState(Button* button)
@@ -229,7 +245,7 @@ void PlayingScene::onMouseUp(EventMouse* event)
         if (my_hero.first == -1)
             return;
         //棋盘
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 6; j++) {
                 if (initialPosition==Vec2(290+118.4*j,295+71.2*i)){
                     chessboard[i][j].first = my_hero.first;
@@ -269,6 +285,15 @@ void PlayingScene::updateProgressBar(float dt) {
         auto newScene = BattleScene::create();
         Director::getInstance()->pushScene(newScene);
     }
+}
+
+void PlayingScene::onEnterTransitionDidFinish()
+{
+    Scene::onEnterTransitionDidFinish();
+
+    // 重新开始倒计时
+    currentTime = totalTime;
+    schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
 }
 
 /* 点击后调节音效 */
@@ -352,7 +377,6 @@ bool PlayingScene::init() {
     coinLabel->setPosition(Vec2(0.888 * visibleSize.width, 0.125 * visibleSize.height));
     this->addChild(coinLabel);
 
-
     /* 创建按钮 */ 
     upbutton = Button::create("buttons/UpgradeNormal.png", "buttons/UpgradeSelected.png");
     upbutton->setPosition(Vec2(0.100 * visibleSize.width, 0.130 * visibleSize.height));
@@ -372,12 +396,12 @@ bool PlayingScene::init() {
     m_pSprite = CCSprite::create("LittleHero/ikun.png");
     m_pblood = CCSprite::create("bloodbar/littleblood.png");
     m_pbloodback = CCSprite::create("bloodbar/littlebloodback.png");
-    // 放置精灵 我方
+    //放置精灵 我方
     m_pSprite->setPosition(ccp(185, 276));
-    m_pbloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
-    m_pblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
+    m_pbloodback->setAnchorPoint(Vec2(0.8F, 0.5F));  // 设置锚点
+    m_pblood->setAnchorPoint(Vec2(0.2F, 0.5F));  // 设置锚点
     m_pbloodback->setPosition(ccp(120, 160));
-    m_pbloodback->setScale(0.4);
+    m_pbloodback->setScale(0.4F);
     m_pblood->setPosition(ccp(72, 80));
 
     m_pSprite->addChild(m_pbloodback);
@@ -412,7 +436,7 @@ bool PlayingScene::init() {
     schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
 
     //点击屏幕触发英雄移动
-    auto touchlistener = EventListenerMouse::create();
+    touchlistener = EventListenerMouse::create();
     touchlistener->onMouseDown = CC_CALLBACK_1(PlayingScene::onMouseDown, this);
     touchlistener->onMouseMove = CC_CALLBACK_1(PlayingScene::onMouseMove, this);
     touchlistener->onMouseUp = CC_CALLBACK_1(PlayingScene::onMouseUp, this);

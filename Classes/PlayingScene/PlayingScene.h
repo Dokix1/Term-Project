@@ -2,7 +2,7 @@
 #define __PLAYING_SCENE_H__
 
 #include "cocos2d.h"
-#include"../Hero/hero.h"
+#include "hero.h"
 #include "ui/CocosGUI.h"
 USING_NS_CC;
 
@@ -28,11 +28,13 @@ public:
     void onMouseMove(EventMouse* event);
     void onMouseUp(EventMouse* event);
     CREATE_FUNC(PlayingScene); //自动创建一个实例
+    void onEnterTransitionDidFinish();
 
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
     static void randCard();
+    EventListenerMouse* touchlistener; // 鼠标事件监听器
 
-    //在这里我们定义一个精灵指针。
+    //在这里我们定义一个精灵指针
     CCSprite* m_pSprite;
     CCSprite* m_penemy;
     CCSprite* m_pblood;

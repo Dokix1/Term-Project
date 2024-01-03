@@ -3,7 +3,7 @@
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
-#include "../PlayingScene/PlayingScene.h"
+#include "PlayingScene.h"
 USING_NS_CC;
 
 /* BattleScene类 */
@@ -12,8 +12,8 @@ public:
     static Scene* createScene(); //创建一个Scene
     virtual bool init(); //初始化场景内容
     void menuSetMusicCallback(Ref* pSender);
-    void menuCloseCallback(Ref* pSender);
     void releaseScene();
+    void Battle();
     CREATE_FUNC(BattleScene); //自动创建一个实例
 };
 

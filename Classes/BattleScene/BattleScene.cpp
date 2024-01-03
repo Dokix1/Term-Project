@@ -1,7 +1,7 @@
 #include "SimpleAudioEngine.h"
-#include "../PlayingScene/PlayingScene.h"
+#include "PlayingScene.h"
 #include "BattleScene.h"
-#include "../SetMusic/SetMusicScene.h"
+#include "SetMusicScene.h"
 #include <vector>
 #include <time.h>
 #include <string>
@@ -28,15 +28,15 @@ vector<vector<pair<int, Hero*>>> chessboardBattle(numRows, vector<pair<int, Hero
 
 void findNearestHero(int i, int j, bool opponent, int& x, int& y);
 pair<int, int> isWithinAttackRange(int x, int y, bool opponent);
-bool Battle();
 
 void put(Hero* h, int col, int row) {
     chessboardBattle[col][row].first = 1;
     chessboardBattle[col][row].second = h;
-
+   
     float cardX = boardX_min + (col + 0.75) * sizeX;
     float cardY = boardY_min + (row + 1) * sizeY;
-    chessboardBattle[col][row].second->setPosition(cardX, cardY);
+    chessboardBattle[col][row].second->setPosition(Vec2(290 + 118.4 * col, 295 + 71.2 * row));
+    chessboardBattle[col][row].second->setScale(0.9 + 0.3 * chessboardBattle[col][row].second->getLevel());
 }
 
 /* 创建一个Scene对象 */
@@ -72,7 +72,6 @@ bool BattleScene::init() {
             if (chessboard[i][j].first != -1) {
                 chessboardBattle[i][j].first = chessboard[i][j].first;
                 switch (chessboard[i][j].first) {
-                    
                     case 0:
                         chessboardBattle[i][j].second = new HeroPhysicalTank(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
                         chessboardBattle[i][j].second->setTexture("Hero/hero01.png");
@@ -100,7 +99,6 @@ bool BattleScene::init() {
                 }
                 
                 //////////定义英雄 血条绑定
-                chessboardBattle[i][j].second->setScale(1.5);
                 chessboardBattle[i][j].second->setFlippedX(false);
                 chessboardBattle[i][j].second->setFlippedY(false);
                 put(chessboardBattle[i][j].second, j, i);
@@ -134,27 +132,13 @@ bool BattleScene::init() {
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
 
-    if (Battle()) { //胜利        
-        auto label = Label::createWithTTF("Win!", "fonts/Marker Felt.ttf", 75); //创建标签
-        label->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + 2 * visibleSize.height / 3)); //标签位置
-        label->setTextColor(Color4B::BLACK); //设置颜色
-        this->addChild(label, 1); //添加到场景中
-    }
-    else { //失败
-        auto label = Label::createWithTTF("Lose...", "fonts/Marker Felt.ttf", 75); //创建标签
-        label->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + 2 * visibleSize.height / 3)); //标签位置
-        label->setTextColor(Color4B::BLACK); //设置颜色
-        this->addChild(label, 1); //添加到场景中
-    }
-   
-    releaseScene();
-    Director::getInstance()->popScene();
+    Battle(); //对战
 
     return true;
 }
 
 /* 英雄移动+对战 */
-bool Battle() {
+void BattleScene::Battle() {
     vector<pair<int, Hero*>> heroVector; //存储英雄
     int myHero = 0; //我方英雄数
     int opHero = 0; //对方英雄数
@@ -162,7 +146,6 @@ bool Battle() {
     for (int i = 0; i < numRows; i++)
         for (int j = 0; j < numCols; j++) 
             if (chessboardBattle[i][j].second != nullptr) {
-                put(chessboardBattle[i][j].second, i, j);
                 heroVector.push_back(chessboardBattle[i][j]);
 
                 if (chessboardBattle[i][j].second->isRed()) 
@@ -221,6 +204,23 @@ bool Battle() {
                     put(hero.second, targetX, targetY); ////////////移动
                 }
             }
-    
-    return myHero;
+
+    auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
+    Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标   
+
+    auto label = Label::createWithTTF("", "fonts/Marker Felt.ttf", 75); //创建标签
+    label->setPosition(Vec2(origin.x + visibleSize.width / 2, origin.y + 2 * visibleSize.height / 3)); //标签位置
+    label->setTextColor(Color4B::BLACK); //设置颜色
+    this->addChild(label, 1); //添加到场景中
+
+    if (myHero) { //胜利        
+        label->setString("Win!");
+    }
+    else { //失败
+        label->setString("Lose.");
+    }
+
+    this->scheduleOnce([&](float dt) {
+        Director::getInstance()->popScene();
+        }, 3.0f, "delayedCallback");
 }
