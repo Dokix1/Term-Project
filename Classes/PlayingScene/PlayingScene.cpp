@@ -13,9 +13,11 @@ using namespace CocosDenshion;
 using namespace std;
 using namespace ui;
 
-int coinCount = 5;
+int coinCount = 0;
 int populutionCount = 0;
 int my_level = 3;
+
+bool pop_open = false;
 
 extern void CardsState();
 extern void reButtonState(Button* button);
@@ -23,6 +25,8 @@ extern void reButtonState(Button* button);
 Button* shopbutton;
 Button* upbutton;
 Button* rebutton;
+
+PopupLayer* popupLayer;
 
 Label* coinLabel;
 Label* upLabel;
@@ -119,7 +123,8 @@ void PlayingScene::shoponButtonClicked(Ref* sender) {
 
     shopbutton->setEnabled(false);
     shopbutton->loadTextures("buttons/ShopSelected.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
-    auto popupLayer = PopupLayer::create();
+    pop_open = true;
+    popupLayer = PopupLayer::create();
     this->addChild(popupLayer);
 }
 void PlayingScene::uponButtonClicked(Ref* sender) {
@@ -281,7 +286,9 @@ void PlayingScene::updateProgressBar(float dt) {
     //检查是否时间已经用完
     if (currentTime <= 0) {
         unschedule(schedule_selector(PlayingScene::updateProgressBar));
-        
+        if (pop_open) {
+            popupLayer->hide();
+        }
         auto newScene = BattleScene::create();
         Director::getInstance()->pushScene(newScene);
     }
@@ -290,7 +297,9 @@ void PlayingScene::updateProgressBar(float dt) {
 void PlayingScene::onEnterTransitionDidFinish()
 {
     Scene::onEnterTransitionDidFinish();
-
+    coinCount += 5;
+    updateButtonState(upbutton);
+    shopLabelState();
     // 重新开始倒计时
     currentTime = totalTime;
     schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);

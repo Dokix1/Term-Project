@@ -32,9 +32,6 @@ pair<int, int> isWithinAttackRange(int x, int y, bool opponent);
 void put(Hero* h, int col, int row) {
     chessboardBattle[col][row].first = 1;
     chessboardBattle[col][row].second = h;
-   
-    float cardX = boardX_min + (col + 0.75) * sizeX;
-    float cardY = boardY_min + (row + 1) * sizeY;
     chessboardBattle[col][row].second->setPosition(Vec2(290 + 118.4 * col, 295 + 71.2 * row));
     chessboardBattle[col][row].second->setScale(0.9 + 0.3 * chessboardBattle[col][row].second->getLevel());
 }
@@ -66,46 +63,6 @@ void BattleScene::releaseScene() {
 bool BattleScene::init() {
     if (!Scene::init()) //初始化
         return false; //初始化失败
-    
-    for (int i = 0; i < 6; i++) 
-        for (int j = 0; j < 6; j++) {
-            if (chessboard[i][j].first != -1) {
-                chessboardBattle[i][j].first = chessboard[i][j].first;
-                switch (chessboard[i][j].first) {
-                    case 0:
-                        chessboardBattle[i][j].second = new HeroPhysicalTank(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
-                        chessboardBattle[i][j].second->setTexture("Hero/hero01.png");
-                        break;
-                    case 1:
-                        chessboardBattle[i][j].second = new HeroMagicTank(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
-                        chessboardBattle[i][j].second->setTexture("Hero/hero11.png");
-                        break;
-                    case 2:
-                        chessboardBattle[i][j].second = new HeroPhysicalWarrior(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
-                        chessboardBattle[i][j].second->setTexture("Hero/hero21.png");
-                        break;
-                    case 3:
-                        chessboardBattle[i][j].second = new HeroMagicalWarrior(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
-                        chessboardBattle[i][j].second->setTexture("Hero/hero31.png");
-                        break;
-                    case 4:
-                        chessboardBattle[i][j].second = new HeroMarksman(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
-                        chessboardBattle[i][j].second->setTexture("Hero/hero41.png");
-                        break;
-                    case 5:
-                        chessboardBattle[i][j].second = new HeroMage(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
-                        chessboardBattle[i][j].second->setTexture("Hero/hero51.png");
-                        break;
-                }
-                
-                //////////定义英雄 血条绑定
-                chessboardBattle[i][j].second->setFlippedX(false);
-                chessboardBattle[i][j].second->setFlippedY(false);
-                put(chessboardBattle[i][j].second, j, i);
-                this->addChild(chessboardBattle[i][j].second, 1);
-            }
-        } 
-
     auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标   
 
@@ -131,7 +88,44 @@ bool BattleScene::init() {
     auto menu = Menu::create(setMusic, nullptr); //添加菜单项
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
+    for (int i = 0; i < 6; i++)
+        for (int j = 0; j < 6; j++) {
+            if (chessboard[i][j].first != -1) {
+                chessboardBattle[i][j].first = chessboard[i][j].first;
+                switch (chessboard[i][j].first) {
+                case 0:
+                    chessboardBattle[i][j].second = new HeroPhysicalTank(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
+                    chessboardBattle[i][j].second->setTexture("Hero/hero01.png");
+                    break;
+                case 1:
+                    chessboardBattle[i][j].second = new HeroMagicTank(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
+                    chessboardBattle[i][j].second->setTexture("Hero/hero11.png");
+                    break;
+                case 2:
+                    chessboardBattle[i][j].second = new HeroPhysicalWarrior(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
+                    chessboardBattle[i][j].second->setTexture("Hero/hero21.png");
+                    break;
+                case 3:
+                    chessboardBattle[i][j].second = new HeroMagicalWarrior(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
+                    chessboardBattle[i][j].second->setTexture("Hero/hero31.png");
+                    break;
+                case 4:
+                    chessboardBattle[i][j].second = new HeroMarksman(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
+                    chessboardBattle[i][j].second->setTexture("Hero/hero41.png");
+                    break;
+                case 5:
+                    chessboardBattle[i][j].second = new HeroMage(chessboard[i][j].second->isRed(), chessboard[i][j].second->getLevel());
+                    chessboardBattle[i][j].second->setTexture("Hero/hero51.png");
+                    break;
+                }
 
+                //////////定义英雄 血条绑定
+                chessboardBattle[i][j].second->setFlippedX(false);
+                chessboardBattle[i][j].second->setFlippedY(false);
+                put(chessboardBattle[i][j].second, j, i);
+                this->addChild(chessboardBattle[i][j].second, 0);
+            }
+        }
     Battle(); //对战
 
     return true;

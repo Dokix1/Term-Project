@@ -18,6 +18,8 @@ extern vector<vector<pair<int, Hero*>>> chessboard; //棋盘数组
 extern int coinCount;
 extern int populutionCount;
 
+extern bool pop_open;
+
 extern Button* shopbutton;
 extern Button* upbutton;
 extern Button* rebutton;
@@ -201,10 +203,9 @@ bool PopupLayer::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
         }
     }
     else { //触摸在弹窗外部，关闭弹窗
+        pop_open = false;
         hide();
-        shopbutton->setEnabled(true);
-        shopbutton->loadTextures("buttons/ShopNormal.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
-    }
+        }
 
     return false;
 }
@@ -269,4 +270,6 @@ void PopupLayer::hide() {
         }
     }
     removeFromParent();
+    shopbutton->setEnabled(true);
+    shopbutton->loadTextures("buttons/ShopNormal.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
 }
