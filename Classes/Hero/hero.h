@@ -34,8 +34,12 @@ protected:
     int attack_speed;  //攻击速度
 
     int level; //星级（一星/两星/三星）
+    
 
 public:  
+    //血条
+    Sprite* bloodbar;
+    Sprite* bloodback;
     /* 构造函数 */
     Hero(bool red, int level) : red(red), level(level) {
         survival = true;

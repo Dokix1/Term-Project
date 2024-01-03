@@ -168,12 +168,118 @@ bool BattleScene::init() {
                     //////////定义英雄 血条绑定
                     chessboardBattle[i][j].second->setFlippedX(false);
                     chessboardBattle[i][j].second->setFlippedY(false);
+
+                    if (i <= 2)//我方血条
+                    {
+                        if (chessboardBattle[i][j].second->getLevel() == 1)
+                        {
+                            chessboardBattle[i][j].second->bloodbar = CCSprite::create("bloodbar/blood1.png");
+                            chessboardBattle[i][j].second->bloodback = CCSprite::create("bloodbar/blood1back.png");
+                        }
+                        else if (chessboardBattle[i][j].second->getLevel() == 2)
+                        {
+                            chessboardBattle[i][j].second->bloodbar == CCSprite::create("bloodbar/blood2.png");
+                            chessboardBattle[i][j].second->bloodback = CCSprite::create("bloodbar/blood1back.png");
+                        }
+                        else
+                        {
+                            chessboardBattle[i][j].second->bloodbar == CCSprite::create("bloodbar/blood3.png");
+                            chessboardBattle[i][j].second->bloodback = CCSprite::create("bloodbar/blood1back.png");
+                        }
+                        chessboardBattle[i][j].second->bloodback->setAnchorPoint(Vec2(0.8F, 0.5F));  // 设置锚点
+                        chessboardBattle[i][j].second->bloodbar->setAnchorPoint(Vec2(0.2F, 0.5F));  // 设置锚点
+                        chessboardBattle[i][j].second->bloodback->setPosition(ccp(40, 70));
+                        chessboardBattle[i][j].second->bloodback->setScale(0.1F);
+                        chessboardBattle[i][j].second->bloodbar->setPosition(ccp(112, 107));
+
+                        chessboardBattle[i][j].second->addChild(chessboardBattle[i][j].second->bloodback);
+                        chessboardBattle[i][j].second->bloodback->addChild(chessboardBattle[i][j].second->bloodbar, 1);
+                    }
+                    else//敌方血条
+                    {
+                        if (chessboardBattle[i][j].second->getLevel() == 1)
+                        {
+                            chessboardBattle[i][j].second->bloodbar = CCSprite::create("bloodbar/enemyblood1.png");
+                            chessboardBattle[i][j].second->bloodback = CCSprite::create("bloodbar/blood1back.png");
+                        }
+                        else if (chessboardBattle[i][j].second->getLevel() == 2)
+                        {
+                            chessboardBattle[i][j].second->bloodbar == CCSprite::create("bloodbar/enemyblood2.png");
+                            chessboardBattle[i][j].second->bloodback = CCSprite::create("bloodbar/blood1back.png");
+                        }
+                        else
+                        {
+                            chessboardBattle[i][j].second->bloodbar == CCSprite::create("bloodbar/enemyblood3.png");
+                            chessboardBattle[i][j].second->bloodback = CCSprite::create("bloodbar/blood1back.png");
+                        }
+                        chessboardBattle[i][j].second->bloodback->setAnchorPoint(Vec2(0.8F, 0.5F));  // 设置锚点
+                        chessboardBattle[i][j].second->bloodbar->setAnchorPoint(Vec2(0.2F, 0.5F));  // 设置锚点
+                        chessboardBattle[i][j].second->bloodback->setPosition(ccp(40, 70));
+                        chessboardBattle[i][j].second->bloodback->setScale(0.1F);
+                        chessboardBattle[i][j].second->bloodbar->setPosition(ccp(112, 107));
+
+                        chessboardBattle[i][j].second->addChild(chessboardBattle[i][j].second->bloodback);
+                        chessboardBattle[i][j].second->bloodback->addChild(chessboardBattle[i][j].second->bloodbar, 1);
+                    }
+
+
                     chessboardBattle[i][j].second->setPosition(Vec2(290 + 118.4 * j, 295 + 71.2 * i));
                     chessboardBattle[i][j].second->setScale(0.9 + 0.3 * chessboardBattle[i][j].second->getLevel());
                     this->addChild(chessboardBattle[i][j].second, 0);
                     chessboardBattle[i][j].second->setOpacity(255);
                 }
             }
+            //点击屏幕触发英雄移动
+            auto touchlistener = EventListenerMouse::create();
+
+            
+            /* 创建小小英雄+血条 */
+            /*m_pSprite = CCSprite::create("LittleHero/ikun.png");
+            m_pblood = CCSprite::create("bloodbar/littleblood.png");
+            m_pbloodback = CCSprite::create("bloodbar/littlebloodback.png");*/
+
+            m_penemy = CCSprite::create("LittleHero/enemy.png");
+            m_penemyblood = CCSprite::create("bloodbar/enemyblood.png");
+            m_penemybloodback = CCSprite::create("bloodbar/littlebloodback.png");
+
+            // 放置小小英雄 我方
+            //m_pSprite->setPosition(ccp(185, 276));
+            //m_pbloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
+            //m_pblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
+            //m_pbloodback->setPosition(ccp(120, 160));
+            //m_pbloodback->setScale(0.4);
+            //m_pblood->setPosition(ccp(72, 80));
+
+            //m_pSprite->addChild(m_pbloodback);
+            //m_pbloodback->addChild(m_pblood, 1);
+            //addChild(m_pSprite, 0);
+
+            //敌方
+            m_penemy->setPosition(ccp(1020, 800));
+            m_penemybloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
+            m_penemyblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
+            m_penemybloodback->setPosition(ccp(130, 140));
+            m_penemybloodback->setScale(0.4);
+            m_penemyblood->setPosition(ccp(72, 80));
+
+            m_penemy->addChild(m_penemybloodback);
+            m_penemybloodback->addChild(m_penemyblood, 1);
+            addChild(m_penemy, 0);
+            m_penemy->setOpacity(255);
+            //血条初始化
+            m_penemyblood->setScale(enemyhero_current_blood / enemyhero_max_blood);
+            m_pblood->setScale(littlehero_current_blood / littlehero_max_blood);
+
+            //// 设置鼠标点击事件监听
+            auto listener = EventListenerTouchOneByOne::create();
+            listener->onTouchBegan = CC_CALLBACK_2(BattleScene::onTouchBeganLITTLE, this);
+            _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+
+            //小小英雄扣血
+            //m_pblood->setScaleX(0.75);
+            //m_penemyblood->setScaleX(0.5);
+            Battle(); //对战
+
         }
     Battle(); //对战
 
@@ -275,9 +381,13 @@ void BattleScene::Battle() {
 
     if (myHero) { //胜利        
         label->setString("Win!");
+        enemyhero_current_blood -= 20;
+        m_penemyblood->setScale(enemyhero_current_blood / enemyhero_max_blood);
     }
     else { //失败
         label->setString("Lose.");
+        littlehero_current_blood -= 20;
+        m_pblood->setScale(littlehero_current_blood / littlehero_max_blood);
     }
 
     this->scheduleOnce([&](float dt) {
@@ -289,4 +399,46 @@ void BattleScene::Battle() {
         playscene->schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
         Director::getInstance()->popScene();
         }, 3.0f, "delayedCallback");
+}
+
+//小小英雄移动
+void BattleScene::moveSpriteTo(Vec2 destination) {
+
+    // 限制目标位置在边界内
+    if ((destination.x > 200 && destination.x < 1050) && (destination.y > 250 && destination.y < 800))
+    {
+        // 创建精灵，并设置位置
+        auto click = CCSprite::create("SpecialEffect/click.png");
+        click->setPosition(destination);
+        // 将精灵添加到场景
+        addChild(click, 0);
+        auto delay = DelayTime::create(0.25f);
+        auto removeAction = CallFunc::create([this, click]() {
+            // 移除精灵
+            click->removeFromParent();
+            });
+        click->runAction(Sequence::create(delay, removeAction, nullptr));
+        // 计算精灵当前位置和目标位置的距离
+        float distance = m_pSprite->getPosition().getDistance(destination);
+        // 计算移动的时间，假设每秒移动300个像素
+        float duration = distance / 300.0f;
+        // 创建一个移动动作
+        auto moveToAction = MoveTo::create(duration, destination);
+        // 运行移动动作
+        m_pSprite->runAction(moveToAction);
+    }
+}
+
+
+
+//小小英雄读入鼠标
+bool BattleScene::onTouchBeganLITTLE(Touch* touch, Event* event)
+{
+    // 停止当前正在进行的移动动作
+    m_pSprite->stopAllActions();
+    // 获取鼠标点击的位置
+    Vec2 touchLocation = touch->getLocation();
+    // 调用移动函数，将精灵移动到鼠标点击的位置
+    moveSpriteTo(touchLocation);
+    return true;  // 返回true表示消耗了该事件
 }
