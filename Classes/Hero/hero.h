@@ -67,6 +67,9 @@ public:
     int getHP() {
         return HP;
     }
+    void changeHP(int hurt) {
+        HP -= hurt;
+    }
 
     /* 获取满血量 */
     int getFullHP() {
@@ -96,6 +99,10 @@ public:
     /* 获取是否存活 */
     bool isSurvival() {
         return survival;
+    }
+
+    void dead() {
+        survival = false;
     }
 
     /* 获取是否是敌方阵营 */
