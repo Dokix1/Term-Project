@@ -2,6 +2,7 @@
 #include "PlayingScene.h"
 #include "../StartGame/StartGame.h"
 #include "../SetMusic/SetMusicScene.h"
+#include"../BattleScene/BattleScene.h"
 #include <vector>
 #include <time.h>
 #include <string>
@@ -40,15 +41,6 @@ pair<int, Hero*> heroCard[5] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1
 pair<int, Hero*> prepare[9] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr}, {-1, nullptr} }; //备战
 
 vector<vector<pair<int,Hero*>>> chessboard(numRows, vector<pair<int,Hero*>>(numCols,make_pair(-1, nullptr))); //棋盘数组
-
-void puthero(Hero* h, int col, int row) {
-    chessboard[col][row].first = 1;
-    chessboard[col][row].second = h;
-
-    float cardX = boardX_min + (col + 0.75) * sizeX;
-    float cardY = boardY_min + (row + 1) * sizeY;
-    chessboard[col][row].second->setPosition(cardX, cardY);
-}
 
 //更新升级按钮状态
 void updateButtonState(Button* button)

@@ -1,7 +1,7 @@
 #include "SimpleAudioEngine.h"
-#include "PlayingScene.h"
+#include "../PlayingScene/PlayingScene.h"
 #include "BattleScene.h"
-#include "SetMusicScene.h"
+#include "../SetMusic/SetMusicScene.h"
 #include <vector>
 #include <time.h>
 #include <string>
