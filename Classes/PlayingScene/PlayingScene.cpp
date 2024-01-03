@@ -41,6 +41,15 @@ pair<int, Hero*> prepare[9] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1,
 
 vector<vector<pair<int,Hero*>>> chessboard(numRows, vector<pair<int,Hero*>>(numCols,make_pair(-1, nullptr))); //棋盘数组
 
+void puthero(Hero* h, int col, int row) {
+    chessboard[col][row].first = 1;
+    chessboard[col][row].second = h;
+
+    float cardX = boardX_min + (col + 0.75) * sizeX;
+    float cardY = boardY_min + (row + 1) * sizeY;
+    chessboard[col][row].second->setPosition(cardX, cardY);
+}
+
 //更新升级按钮状态
 void updateButtonState(Button* button)
 {
@@ -81,6 +90,19 @@ Scene* PlayingScene::createScene() {
 
 /* 点击后返回主界面 */
 void PlayingScene::menuCloseCallback(Ref* pSender) {
+    //卡牌
+    for (int i = 0; i < 5; i++)
+        if (heroCard[i].second != nullptr) {
+            heroCard[i].second->release(); //释放卡牌
+            heroCard[i] = { -1, nullptr };
+        }
+    //备战
+    for (int i = 0; i < 9; i++)
+        if (prepare[i].second != nullptr) {
+            prepare[i].second->release(); //释放卡牌
+            prepare[i] = { -1, nullptr };
+        }
+
     auto newScene = StartGameScene::create(); //主界面
     Director::getInstance()->replaceScene(newScene); //切换到主界面
 }
@@ -251,7 +273,9 @@ void PlayingScene::updateProgressBar(float dt) {
     //检查是否时间已经用完
     if (currentTime <= 0) {
         unschedule(schedule_selector(PlayingScene::updateProgressBar));
-        //moveHero(); //在这里添加时间到达的处理逻辑
+        
+        auto newScene = BattleScene::create();
+        Director::getInstance()->pushScene(newScene);
     }
 }
 
@@ -265,6 +289,14 @@ void PlayingScene::menuSetMusicCallback(Ref* pSender) {
 bool PlayingScene::init() {
     if (!Scene::init()) //初始化
         return false; //初始化失败
+
+    for (int i = 0; i < 6; i++)
+        for (int j = 0; j < 6; j++)
+            if (chessboard[i][j].second != nullptr) {
+                chessboard[i][j].second->release(); //释放卡牌
+                chessboard[i][j].first = -1;
+                chessboard[i][j].second = nullptr;
+            }
 
     auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标   

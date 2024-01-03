@@ -120,10 +120,7 @@ public:
     void upLevel() {
         level++;
     }
-    virtual void attackEnemy() {
 
-    }
-    //¹¥»÷Âß¼­
     virtual void useSkill() {
 
     }
@@ -145,7 +142,7 @@ public:
         MP = 20;
         FullMP = 50;
         cost = 1;
-        attackDistance = 1;
+        attackDistance = 2;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -153,10 +150,6 @@ public:
         else if (level == 3) { //ÈýÐÇÓ¢ÐÛ
 
         }
-    }
-
-    void attackEnemy() override {
-        //¹¥»÷Âß¼­
     }
 
     void useSkill() override {
@@ -177,7 +170,7 @@ public:
         MP = 30;
         FullMP = 40;
         cost = 2;
-        attackDistance = 1;
+        attackDistance = 2;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -185,10 +178,6 @@ public:
         else if (level == 3) { //ÈýÐÇÓ¢ÐÛ
 
         }
-    }
-
-    void attackEnemy() override {
-        //¹¥»÷Âß¼­
     }
 
     void useSkill() override {
@@ -209,7 +198,7 @@ public:
         MP = 0;
         FullMP = 30;
         cost = 3;
-        attackDistance = 1;
+        attackDistance = 2;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -217,10 +206,6 @@ public:
         else if (level == 3) { //ÈýÐÇÓ¢ÐÛ
 
         }
-    }
-
-    void attackEnemy() override {
-        //¹¥»÷Âß¼­
     }
 
     void useSkill() override {
@@ -241,7 +226,7 @@ public:
         MP = 10;
         FullMP = 50;
         cost = 1;
-        attackDistance = 1;
+        attackDistance = 2;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -249,10 +234,6 @@ public:
         else if (level == 3) { //ÈýÐÇÓ¢ÐÛ
 
         }
-    }
-
-    void attackEnemy() override {
-        //¹¥»÷Âß¼­
     }
 
     void useSkill() override {
@@ -273,7 +254,7 @@ public:
         MP = 20;
         FullMP = 50;
         cost = 2;
-        attackDistance = 3;
+        attackDistance = 9;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -281,10 +262,6 @@ public:
         else if (level == 3) { //ÈýÐÇÓ¢ÐÛ
 
         }
-    }
-
-    void attackEnemy() override {
-        //¹¥»÷Âß¼­
     }
 
     void useSkill() override {
@@ -305,7 +282,7 @@ public:
         MP = 30;
         FullMP = 60;
         cost = 3;
-        attackDistance = 3;
+        attackDistance = 9;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -313,10 +290,6 @@ public:
         else if (level == 3) { //ÈýÐÇÓ¢ÐÛ
 
         }
-    }
-
-    void attackEnemy() override {
-        //¹¥»÷Âß¼­
     }
 
     void useSkill() override {
