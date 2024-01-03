@@ -62,13 +62,7 @@ public:
     int getAPdefect() {
         return APdefect;
     }
-    void dead() {
-        survival = false;
-    }
 
-    void changeHP(int hurt) {
-        HP -= hurt;
-    }
     /* »ñÈ¡ÑªÁ¿ */
     int getHP() {
         return HP;
