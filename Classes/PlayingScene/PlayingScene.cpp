@@ -295,7 +295,6 @@ void PlayingScene::onEnterTransitionDidFinish()
 {
     Scene::onEnterTransitionDidFinish();
 
-   
     ai.AIbettle();
 
     // 重新开始倒计时

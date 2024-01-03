@@ -33,7 +33,6 @@ public:
 
     bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
     static void randCard();
-    static void AIrandCard();
     EventListenerMouse* touchlistener; // 鼠标事件监听器
 
     //在这里我们定义一个精灵指针
