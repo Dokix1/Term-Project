@@ -18,6 +18,8 @@ extern vector<vector<pair<int, Hero*>>> chessboard; //棋盘数组
 extern int coinCount;
 extern int populutionCount;
 
+extern bool pop_open;
+
 extern Button* shopbutton;
 extern Button* upbutton;
 extern Button* rebutton;
@@ -98,7 +100,6 @@ void PopupLayer::Cardsinit() {
         }
 
 }
-
 void StartUp(int number) {
     int num=0;
     bool first_hero = true;
@@ -152,7 +153,6 @@ void StartUp(int number) {
         }
     }
 }
-
 bool PopupLayer::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
     Vec2 touchPos = touch->getLocation(); //获取触摸位置
     //showCoordinates(touchPos);
@@ -161,7 +161,8 @@ bool PopupLayer::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
         (1026.25 <= touchPos.x && touchPos.x <= 1213.75 && 26.25 <= touchPos.y && touchPos.y <= 213.75)) {
         if ((140 <= touchPos.x && touchPos.x <= 1140 && 643 <= touchPos.y && touchPos.y <= 893)) {
             int i = (touchPos.x - 140) / 200;
-            if (heroCard[i].first != -1&&heroCard[i].second->getCost()<=coinCount)
+            if (heroCard[i].first != -1 && heroCard[i].second->getCost() <= coinCount) {
+                CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
                 for (int j = 0; j < 9; j++)
                     if (prepare[j].first == -1) { //将卡牌移动到备战区域
                         prepare[j].first = heroCard[i].first;
@@ -199,14 +200,14 @@ bool PopupLayer::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event) {
                         StartUp(prepare[j].first);
                         return true;
                     }
+            }
             //触摸在弹窗内部，不关闭弹窗，继续传递触摸事件
         }
     }
     else { //触摸在弹窗外部，关闭弹窗
+        pop_open = false;
         hide();
-        shopbutton->setEnabled(true);
-        shopbutton->loadTextures("buttons/ShopNormal.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
-    }
+        }
 
     return false;
 }
@@ -251,6 +252,8 @@ bool PopupLayer::init() {
 }
 
 void PopupLayer::reonButtonClicked(Ref* sender) {
+
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     //刷新卡牌
     coinCount -= 2;
     PlayingScene::randCard();
@@ -262,6 +265,8 @@ void PopupLayer::reonButtonClicked(Ref* sender) {
 }
 
 void PopupLayer::hide() {
+
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     Node* parent = getParent();
     for (int i = 0; i < 9; i++) {
         if (prepare[i].first != -1) {
@@ -271,4 +276,6 @@ void PopupLayer::hide() {
         }
     }
     removeFromParent();
+    shopbutton->setEnabled(true);
+    shopbutton->loadTextures("buttons/ShopNormal.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
 }

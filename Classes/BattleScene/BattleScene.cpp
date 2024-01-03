@@ -26,20 +26,19 @@ const int sizeY = 71.2;
 extern vector<vector<pair<int, Hero*>>> chessboard; //棋盘数组
 extern vector<vector<pair<int, Hero*>>> AIchessboard; //AI棋盘数组
 
+extern int coinCount;
+
+extern PlayingScene* playscene;
+
 vector<vector<pair<int, Hero*>>> chessboardBattle(numRows, vector<pair<int, Hero*>>(numCols, make_pair(-1, nullptr))); //棋盘数组
+
+extern void updateButtonState(Button* button);
+extern void shopLabelState();
+
+extern Button* upbutton;
 
 void findNearestHero(int i, int j, bool opponent, int& x, int& y);
 pair<int, int> isWithinAttackRange(int x, int y, bool opponent);
-
-void put(Hero* h, int col, int row) {
-    chessboardBattle[col][row].first = 1;
-    chessboardBattle[col][row].second = h;
-   
-    float cardX = boardX_min + (col + 0.75) * sizeX;
-    float cardY = boardY_min + (row + 1) * sizeY;
-    chessboardBattle[col][row].second->setPosition(Vec2(290 + 118.4 * col, 295 + 71.2 * row));
-    chessboardBattle[col][row].second->setScale(0.9 + 0.3 * chessboardBattle[col][row].second->getLevel());
-}
 
 /* 创建一个Scene对象 */
 Scene* BattleScene::createScene() {
@@ -48,6 +47,8 @@ Scene* BattleScene::createScene() {
 
 /* 点击后调节音效 */
 void BattleScene::menuSetMusicCallback(Ref* pSender) {
+
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = SetMusicScene::create();
     Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
 }
@@ -68,11 +69,34 @@ void BattleScene::releaseScene() {
 bool BattleScene::init() {
     if (!Scene::init()) //初始化
         return false; //初始化失败
-    
-    for (int i = 0; i < 6; i++) 
+    auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
+    Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标   
+
+    SimpleAudioEngine::getInstance()->stopBackgroundMusic();
+    SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/playingBGM.mp3", true); //播放背景音乐
+    SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(0.6F); //设置背景音乐的音量
+
+    /* 背景精灵 */
+    auto background = Sprite::create("ChessBoard/playing.png");
+    background->setContentSize(Size(visibleSize.width, visibleSize.height));
+    background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
+    this->addChild(background, 0);
+
+    /* 设置音效菜单项 */
+    auto setMusic = MenuItemImage::create("Music/setting.png", "Music/setting.png",
+        CC_CALLBACK_1(BattleScene::menuSetMusicCallback, this));
+    setMusic->setScale(0.5);
+    float x = origin.x + 11 * visibleSize.width / 12;
+    float y = origin.y + 8 * visibleSize.height / 9;
+    setMusic->setPosition(Vec2(x, y));
+
+    /* 创建菜单 */
+    auto menu = Menu::create(setMusic, nullptr); //添加菜单项
+    menu->setPosition(Vec2::ZERO);
+    this->addChild(menu, 1);
+    for (int i = 0; i < 6; i++)
         for (int j = 0; j < 6; j++) {
-            if (i < 3)
-            {
+            if (i <= 2) {
                 if (chessboard[i][j].first != -1) {
                     chessboardBattle[i][j].first = chessboard[i][j].first;
                     switch (chessboard[i][j].first) {
@@ -105,12 +129,13 @@ bool BattleScene::init() {
                     //////////定义英雄 血条绑定
                     chessboardBattle[i][j].second->setFlippedX(false);
                     chessboardBattle[i][j].second->setFlippedY(false);
-                    put(chessboardBattle[i][j].second, j, i);
-                    this->addChild(chessboardBattle[i][j].second, 1);
+                    chessboardBattle[i][j].second->setPosition(Vec2(290 + 118.4 * j, 295 + 71.2 * i));
+                    chessboardBattle[i][j].second->setScale(0.9 + 0.3 * chessboardBattle[i][j].second->getLevel());
+                    this->addChild(chessboardBattle[i][j].second, 0);
+                    chessboardBattle[i][j].second->setOpacity(255);
                 }
             }
-            else
-            {
+            else {
                 if (AIchessboard[i][j].first != -1) {
                     chessboardBattle[i][j].first = AIchessboard[i][j].first;
                     switch (AIchessboard[i][j].first) {
@@ -143,48 +168,13 @@ bool BattleScene::init() {
                     //////////定义英雄 血条绑定
                     chessboardBattle[i][j].second->setFlippedX(false);
                     chessboardBattle[i][j].second->setFlippedY(false);
-                    put(chessboardBattle[i][j].second, j, i);
-                    this->addChild(chessboardBattle[i][j].second, 1);
+                    chessboardBattle[i][j].second->setPosition(Vec2(290 + 118.4 * j, 295 + 71.2 * i));
+                    chessboardBattle[i][j].second->setScale(0.9 + 0.3 * chessboardBattle[i][j].second->getLevel());
+                    this->addChild(chessboardBattle[i][j].second, 0);
+                    chessboardBattle[i][j].second->setOpacity(255);
                 }
-
-
-
-
-
-
-
             }
-
-
-
-        } 
-
-    auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
-    Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标   
-
-    SimpleAudioEngine::getInstance()->stopBackgroundMusic();
-    SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/playingBGM.mp3", true); //播放背景音乐
-    SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(0.6F); //设置背景音乐的音量
-
-    /* 背景精灵 */
-    auto background = Sprite::create("ChessBoard/playing.png");
-    background->setContentSize(Size(visibleSize.width, visibleSize.height));
-    background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
-    this->addChild(background, 0);
-
-    /* 设置音效菜单项 */
-    auto setMusic = MenuItemImage::create("Music/setting.png", "Music/setting.png",
-        CC_CALLBACK_1(BattleScene::menuSetMusicCallback, this));
-    setMusic->setScale(0.5);
-    float x = origin.x + 11 * visibleSize.width / 12;
-    float y = origin.y + 8 * visibleSize.height / 9;
-    setMusic->setPosition(Vec2(x, y));
-
-    /* 创建菜单 */
-    auto menu = Menu::create(setMusic, nullptr); //添加菜单项
-    menu->setPosition(Vec2::ZERO);
-    this->addChild(menu, 1);
-
+        }
     Battle(); //对战
 
     return true;
@@ -192,72 +182,89 @@ bool BattleScene::init() {
 
 /* 英雄移动+对战 */
 void BattleScene::Battle() {
-    vector<pair<int, Hero*>> heroVector; //存储英雄
     int myHero = 0; //我方英雄数
     int opHero = 0; //对方英雄数
-
-    for (int i = 0; i < numRows; i++)
-        for (int j = 0; j < numCols; j++) 
+    vector<Hero*>mHero, oHero;
+    for (int i = 0; i < numRows; i++) {
+        for (int j = 0; j < numCols; j++) {
             if (chessboardBattle[i][j].second != nullptr) {
-                heroVector.push_back(chessboardBattle[i][j]);
-
-                if (chessboardBattle[i][j].second->isRed()) 
+                if (chessboardBattle[i][j].second->isRed()) {
+                    oHero.push_back(chessboardBattle[i][j].second);
                     opHero++;
-                else 
+                }
+                else {
+                    mHero.push_back(chessboardBattle[i][j].second);
                     myHero++;
-            }        
-        
-    while (opHero && myHero) 
-        for (pair<int, Hero*> hero : heroVector)
-            if (hero.second->isSurvival()) {
-                bool attack = 0;
-                int heroX = (hero.second->getPosition().x - 290) / 118.4;
-                int heroY = (hero.second->getPosition().y - 295) / 71.2;
-
-                //找到最近的攻击目标
-                int targetX = -1;
-                int targetY = -1;
-                int minDistance = numRows * numRows + numCols * numCols;
-
-                for (int i = 0; i < numRows; i++)
-                    for (int j = 0; j < numCols; j++)
-                        if (chessboardBattle[i][j].second != nullptr && chessboardBattle[i][j].second->isRed() != hero.second->isRed() && chessboardBattle[i][j].second->isSurvival()) {
-                            int distance = (i - heroX) * (i - heroX) + (j - heroY) * (j - heroY);
-                            if (distance < minDistance) {
-                                minDistance = distance;
-                                targetX = i;
-                                targetY = j;
-                            }
-
-                            //攻击 1->2
-                            if (minDistance <= hero.second->getAttackDistance() * hero.second->getAttackDistance()) {
-                                attack = 1;
-                                Hero* hero1 = hero.second;
-                                Hero* hero2 = chessboardBattle[targetX][targetY].second;
-
-                                int hurt2 = hero1->getAttack() - hero2->getDefect() / 10 + hero1->getAP() - hero2->getAPdefect() / 10;
-                                ////////////攻击一次
-                                hero2->changeHP(hurt2);
-                                ///////////////减少血量
-
-                                if (hero2->getHP() <= 0) {
-                                    hero2->dead();
-                                    hero2->removeFromParent();
-                                    if (hero1->isRed())
-                                        opHero--;
-                                    else
-                                        myHero--;
-                                }
-                            }
-                        }
-
-                //移动
-                if (!attack && targetX != -1 && targetY != -1) {
-                    chessboardBattle[heroX][heroY].second = nullptr;
-                    put(hero.second, targetX, targetY); ////////////移动
                 }
             }
+        }
+    }
+    while(opHero && myHero) {
+        for (int i = 0; i < mHero.size(); i++) {
+            if (mHero[i] == nullptr) {
+                continue;
+            }
+            float mindistance = 999999;
+            int min_no = -1;
+            for (int j = 0; j < oHero.size(); j++) {
+                if (oHero[j] == nullptr) {
+                    continue;
+                }
+                float distance = mHero[i]->getPosition().distance(oHero[j]->getPosition());
+                    if (distance <= mindistance) {
+                        mindistance = distance;
+                        min_no = j;
+                }
+            }
+            if (mindistance <= mHero[i]->getAttackDistance()) {
+                oHero[min_no]->changeHP((1 - oHero[min_no]->getDefect() / 200) * mHero[i]->getAttack() + (1 - oHero[min_no]->getAPdefect() / 200) * mHero[i]->getAP());
+                if (oHero[min_no]->getHP() <= 0) {
+                    opHero--;
+                    oHero[min_no]->removeFromParent();
+                    oHero[min_no] = nullptr;
+                }
+            }
+            //else {
+            //    
+            //    auto moveTo = MoveTo::create(5.0f, Vec2(640,480)); // 创建 MoveBy 动作，使精灵向右移动 100 距离
+            //    Vec2 orgin = mHero[i]->getPosition();
+            //    mHero[i]->runAction(moveTo);
+            //    auto func = std::bind([]( Vec2 orgin, Sprite* sprite) {
+            //        auto currentPosition = sprite->getPosition();
+            //        if (currentPosition.distance(orgin) >= 50) {
+            //            sprite->stopAllActions();
+            //        }
+            //        }, orgin, mHero[i]);
+            //    schedule(func, "check_distance");
+            //}
+        }
 
+        for (int i = 0; i < oHero.size(); i++) {
+            float mindistance = 999999;
+            int min_no = -1;
+            for (int j = 0; j < mHero.size(); j++) {
+                float distance = oHero[i]->getPosition().distance(mHero[j]->getPosition());
+                if (distance <= mindistance) {
+                    mindistance = distance;
+                    min_no = j;
+                }
+            }
+            if (mindistance < oHero[i]->getAttackDistance()) {
+                mHero[min_no]->changeHP((1 - mHero[min_no]->getDefect() / 200) * oHero[i]->getAttack() + (1 - mHero[min_no]->getAPdefect() / 200) * oHero[i]->getAP());
+                if (mHero[min_no]->getHP() <= 0) {
+                    myHero--;
+                    mHero[min_no]->removeFromParent();
+                    mHero[min_no]->release();
+                    mHero[min_no] = nullptr;
+                    mHero.erase(mHero.begin() + min_no);
+                }
+            }
+            /*else {
+                auto moveBy = MoveBy::create(1.0f, 100 * (mHero[min_no]->getPosition() - oHero[i]->getPosition()).getNormalized());
+                oHero[i]->runAction(moveBy);
+            }*/
+        }
+    }
     auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
     Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标   
 
@@ -274,6 +281,12 @@ void BattleScene::Battle() {
     }
 
     this->scheduleOnce([&](float dt) {
+        coinCount += 5;
+        updateButtonState(upbutton);
+        shopLabelState();
+        // 重新开始倒计时
+        playscene->currentTime = playscene->totalTime;
+        playscene->schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
         Director::getInstance()->popScene();
         }, 3.0f, "delayedCallback");
 }

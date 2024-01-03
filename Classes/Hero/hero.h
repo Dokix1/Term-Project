@@ -62,7 +62,7 @@ public:
     int getAPdefect() {
         return APdefect;
     }
-    
+
     /* »ñÈ¡ÑªÁ¿ */
     int getHP() {
         return HP;
@@ -149,7 +149,7 @@ public:
         MP = 20;
         FullMP = 50;
         cost = 1;
-        attackDistance = 2;
+        attackDistance = 1;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -177,7 +177,7 @@ public:
         MP = 30;
         FullMP = 40;
         cost = 2;
-        attackDistance = 2;
+        attackDistance = 100;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -205,7 +205,7 @@ public:
         MP = 0;
         FullMP = 30;
         cost = 3;
-        attackDistance = 2;
+        attackDistance = 150;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -233,7 +233,7 @@ public:
         MP = 10;
         FullMP = 50;
         cost = 1;
-        attackDistance = 2;
+        attackDistance = 150;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -261,7 +261,7 @@ public:
         MP = 20;
         FullMP = 50;
         cost = 2;
-        attackDistance = 9;
+        attackDistance = 400;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 
@@ -289,7 +289,7 @@ public:
         MP = 30;
         FullMP = 60;
         cost = 3;
-        attackDistance = 9;
+        attackDistance = 400;
 
         if (level == 2) { //¶þÐÇÓ¢ÐÛ
 

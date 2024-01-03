@@ -23,12 +23,16 @@ void StartGameScene::menuCloseCallback(Ref* pSender) {
 
 /* 点击后创建房间 */
 void StartGameScene::menuCreateRoomCallback(Ref* pSender) {
+
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = CreateRoomScene::create(); //创建游戏场景
     Director::getInstance()->replaceScene(newScene); //切换到创建房间场景
 }
 
 /* 点击后调节音效 */
 void StartGameScene::menuSetMusicCallback(Ref* pSender) {
+
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = SetMusicScene::create();
     Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
 }
