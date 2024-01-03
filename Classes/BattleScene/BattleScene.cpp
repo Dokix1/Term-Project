@@ -26,19 +26,22 @@ const int sizeY = 71.2;
 extern vector<vector<pair<int, Hero*>>> chessboard; //棋盘数组
 vector<vector<pair<int, Hero*>>> chessboardBattle(numRows, vector<pair<int, Hero*>>(numCols, make_pair(-1, nullptr))); //棋盘数组
 
-void put(Hero* h, int col, int row);
 void findNearestHero(int i, int j, bool opponent, int& x, int& y);
 pair<int, int> isWithinAttackRange(int x, int y, bool opponent);
 bool Battle();
 
+void put(Hero* h, int col, int row) {
+    chessboardBattle[col][row].first = 1;
+    chessboardBattle[col][row].second = h;
+
+    float cardX = boardX_min + (col + 0.75) * sizeX;
+    float cardY = boardY_min + (row + 1) * sizeY;
+    chessboardBattle[col][row].second->setPosition(cardX, cardY);
+}
+
 /* 创建一个Scene对象 */
 Scene* BattleScene::createScene() {
     return BattleScene::create();
-}
-
-/* 返回备战界面 */
-void BattleScene::menuCloseCallback(Ref* pSender) {
-    Director::getInstance()->popScene();
 }
 
 /* 点击后调节音效 */
@@ -48,8 +51,6 @@ void BattleScene::menuSetMusicCallback(Ref* pSender) {
 }
 
 void BattleScene::releaseScene() {
-    //释放场景中的资源和对象
-
     //释放棋盘数组中的英雄对象
     for (int i = 0; i < numRows; i++) {
         for (int j = 0; j < numCols; j++) {
@@ -98,6 +99,7 @@ bool BattleScene::init() {
                         break;
                 }
                 
+                //////////定义英雄 血条绑定
                 chessboardBattle[i][j].second->setScale(1.5);
                 chessboardBattle[i][j].second->setFlippedX(false);
                 chessboardBattle[i][j].second->setFlippedY(false);
@@ -145,9 +147,7 @@ bool BattleScene::init() {
         this->addChild(label, 1); //添加到场景中
     }
    
-   
-
-    Sleep(1000);
+    releaseScene();
     Director::getInstance()->popScene();
 
     return true;
@@ -174,7 +174,7 @@ bool Battle() {
     while (opHero && myHero) 
         for (pair<int, Hero*> hero : heroVector)
             if (hero.second->isSurvival()) {
-                bool battle = 0;
+                bool attack = 0;
                 int heroX = (hero.second->getPosition().x - 290) / 118.4;
                 int heroY = (hero.second->getPosition().y - 295) / 71.2;
 
@@ -192,46 +192,33 @@ bool Battle() {
                                 targetX = i;
                                 targetY = j;
                             }
-                            //对战
+
+                            //攻击 1->2
                             if (minDistance <= hero.second->getAttackDistance() * hero.second->getAttackDistance()) {
-                                battle = 1;
+                                attack = 1;
                                 Hero* hero1 = hero.second;
                                 Hero* hero2 = chessboardBattle[targetX][targetY].second;
 
-                                while (hero1->isSurvival() && hero2->isSurvival()) {
-                                    //Sleep(2);
-                                    int hurt1 = hero2->getAttack() - hero1->getDefect() / 10 + hero2->getAP() - hero1->getAPdefect() / 10;
-                                    int hurt2 = hero1->getAttack() - hero2->getDefect() / 10 + hero1->getAP() - hero2->getAPdefect() / 10;
+                                int hurt2 = hero1->getAttack() - hero2->getDefect() / 10 + hero1->getAP() - hero2->getAPdefect() / 10;
+                                ////////////攻击一次
+                                hero2->changeHP(hurt2);
+                                ///////////////减少血量
 
-                                    hero1->changeHP(hurt1);
-                                    hero2->changeHP(hurt2);
-
-                                    if (hero1->getHP() <= 0) {
-                                        hero1->dead();
-                                        hero1->removeFromParent();
-                                        if (hero1->isRed())
-                                            opHero--;
-                                        else
-                                            myHero--;
-                                    }
-                                        
-                                    if (hero2->getHP() <= 0) {
-                                        hero2->dead();
-                                        hero2->removeFromParent();
-                                        if (hero1->isRed())
-                                            opHero--;
-                                        else
-                                            myHero--;
-                                    } 
+                                if (hero2->getHP() <= 0) {
+                                    hero2->dead();
+                                    hero2->removeFromParent();
+                                    if (hero1->isRed())
+                                        opHero--;
+                                    else
+                                        myHero--;
                                 }
                             }
                         }
 
-                //移动英雄一格
-                if (!battle && targetX != -1 && targetY != -1) {
+                //移动
+                if (!attack && targetX != -1 && targetY != -1) {
                     chessboardBattle[heroX][heroY].second = nullptr;
-                   
-                    put(hero.second, targetX, targetY);
+                    put(hero.second, targetX, targetY); ////////////移动
                 }
             }
     
