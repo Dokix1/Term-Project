@@ -3,7 +3,7 @@
 
 #include "cocos2d.h"
 #include "ui/CocosGUI.h"
-#include "PlayingScene.h"
+#include "../PlayingScene/PlayingScene.h"
 USING_NS_CC;
 
 /* BattleScene¿‡ */

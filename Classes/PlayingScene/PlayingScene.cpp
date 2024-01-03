@@ -1,13 +1,13 @@
 #include "SimpleAudioEngine.h"
-#include "PlayingScene.h"
-#include "StartGame.h"
-#include "BattleScene.h"
-#include "SetMusicScene.h"
+#include "../PlayingScene/PlayingScene.h"
+#include "../StartGame/StartGame.h"
+#include "../BattleScene/BattleScene.h"
+#include "../SetMusic/SetMusicScene.h"
 #include <vector>
 #include <time.h>
 #include <string>
 #include <utility>
-#include "PopupLayer.h"
+#include "../PopupLayer/PopupLayer.h"
 USING_NS_CC;
 using namespace CocosDenshion;
 using namespace std;

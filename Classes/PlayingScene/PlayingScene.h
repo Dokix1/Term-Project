@@ -2,7 +2,7 @@
 #define __PLAYING_SCENE_H__
 
 #include "cocos2d.h"
-#include "hero.h"
+#include "../Hero/hero.h"
 #include "ui/CocosGUI.h"
 USING_NS_CC;
 
