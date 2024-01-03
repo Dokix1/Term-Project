@@ -13,7 +13,7 @@ using namespace CocosDenshion;
 using namespace std;
 using namespace ui;
 
-int coinCount = 0;
+int coinCount = 5;
 int populutionCount = 0;
 int my_level = 3;
 
@@ -27,6 +27,8 @@ Button* upbutton;
 Button* rebutton;
 
 PopupLayer* popupLayer;
+
+PlayingScene* playscene;
 
 Label* coinLabel;
 Label* upLabel;
@@ -102,6 +104,8 @@ Scene* PlayingScene::createScene() {
 
 /* 点击后返回主界面 */
 void PlayingScene::menuCloseCallback(Ref* pSender) {
+    
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     //卡牌
     for (int i = 0; i < 5; i++)
         if (heroCard[i].second != nullptr) {
@@ -114,6 +118,8 @@ void PlayingScene::menuCloseCallback(Ref* pSender) {
             prepare[i].second->release(); //释放卡牌
             prepare[i] = { -1, nullptr };
         }
+    my_level = 3;
+    coinCount = 0;
 
     auto newScene = StartGameScene::create(); //主界面
     Director::getInstance()->replaceScene(newScene); //切换到主界面
@@ -121,6 +127,7 @@ void PlayingScene::menuCloseCallback(Ref* pSender) {
 
 void PlayingScene::shoponButtonClicked(Ref* sender) {
 
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     shopbutton->setEnabled(false);
     shopbutton->loadTextures("buttons/ShopSelected.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
     pop_open = true;
@@ -128,6 +135,8 @@ void PlayingScene::shoponButtonClicked(Ref* sender) {
     this->addChild(popupLayer);
 }
 void PlayingScene::uponButtonClicked(Ref* sender) {
+
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     coinCount -= (2 * my_level - 2);
     my_level++;
     upLabel->setString(to_string(2 * my_level - 2));
@@ -289,24 +298,26 @@ void PlayingScene::updateProgressBar(float dt) {
         if (pop_open) {
             popupLayer->hide();
         }
+        if (isDragging) {
+            auto dispatcher = Director::getInstance()->getEventDispatcher();
+            auto mouseEvent = EventMouse::MouseEventType::MOUSE_UP;
+
+            // 模拟鼠标左键松开事件
+            EventMouse event(mouseEvent);
+            event.setMouseButton(EventMouse::MouseButton::BUTTON_LEFT);
+            event.setCursorPosition(0, 0);
+            dispatcher->dispatchEvent(&event);
+        }
+        playscene = dynamic_cast<PlayingScene*>(Director::getInstance()->getRunningScene());
         auto newScene = BattleScene::create();
         Director::getInstance()->pushScene(newScene);
     }
 }
 
-void PlayingScene::onEnterTransitionDidFinish()
-{
-    Scene::onEnterTransitionDidFinish();
-    coinCount += 5;
-    updateButtonState(upbutton);
-    shopLabelState();
-    // 重新开始倒计时
-    currentTime = totalTime;
-    schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
-}
-
 /* 点击后调节音效 */
 void PlayingScene::menuSetMusicCallback(Ref* pSender) {
+
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = SetMusicScene::create();
     Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
 }

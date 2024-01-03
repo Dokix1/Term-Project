@@ -24,7 +24,17 @@ const int sizeX = 118.4;
 const int sizeY = 71.2;
 
 extern vector<vector<pair<int, Hero*>>> chessboard; //棋盘数组
+
+extern int coinCount;
+
+extern PlayingScene* playscene;
+
 vector<vector<pair<int, Hero*>>> chessboardBattle(numRows, vector<pair<int, Hero*>>(numCols, make_pair(-1, nullptr))); //棋盘数组
+
+extern void updateButtonState(Button* button);
+extern void shopLabelState();
+
+extern Button* upbutton;
 
 void findNearestHero(int i, int j, bool opponent, int& x, int& y);
 pair<int, int> isWithinAttackRange(int x, int y, bool opponent);
@@ -43,6 +53,8 @@ Scene* BattleScene::createScene() {
 
 /* 点击后调节音效 */
 void BattleScene::menuSetMusicCallback(Ref* pSender) {
+
+    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = SetMusicScene::create();
     Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
 }
@@ -124,6 +136,7 @@ bool BattleScene::init() {
                 chessboardBattle[i][j].second->setFlippedY(false);
                 put(chessboardBattle[i][j].second, j, i);
                 this->addChild(chessboardBattle[i][j].second, 0);
+                chessboardBattle[i][j].second->setOpacity(255);
             }
         }
     Battle(); //对战
@@ -215,6 +228,12 @@ void BattleScene::Battle() {
     }
 
     this->scheduleOnce([&](float dt) {
+        coinCount += 5;
+        updateButtonState(upbutton);
+        shopLabelState();
+        // 重新开始倒计时
+        playscene->currentTime = playscene->totalTime;
+        playscene->schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
         Director::getInstance()->popScene();
         }, 3.0f, "delayedCallback");
 }
