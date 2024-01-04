@@ -73,6 +73,7 @@ public:
     }
     void changeHP(int hurt) {
         HP -= hurt;
+       
     }
 
     /* »ñÈ¡ÂúÑªÁ¿ */
