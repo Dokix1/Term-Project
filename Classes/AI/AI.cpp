@@ -112,7 +112,7 @@ void AI::AIbettle() {
     AICardsinit();
 
     money += 5;
-    
+
     population = 0;
     for (int i = 3; i < 6; i++) {
         for (int j = 0; j < 6; j++) {
@@ -159,7 +159,7 @@ void AI::AIbettle() {
                 a++;
         }
 
-        for (int i = 0; i < 5 && population + a < AIlevel + 3; i++) {
+        for (int i = 0; i < 5 && population + a < AIlevel; i++) {
             if (AIheroCard[i].first != -1 && AIheroCard[i].second->getCost() <= money)
             {
                 for (int m = 0; m < 9 && countprepare == 0; m++)
@@ -197,85 +197,85 @@ void AI::AIbettle() {
         }
     }
 
-    
-        for (int i = 0; i < 9; i++)
+
+    for (int i = 0; i < 9; i++)
+    {
+        if (population < AIlevel + 3)
         {
-            if (population < AIlevel + 3)
+            countboard = 0;
+            if (AIprepare[i].first != -1 && countboard == 0)
             {
-                countboard = 0;
-                if (AIprepare[i].first != -1 && countboard == 0)
+                if (AIprepare[i].second->getAttackDistance() < 400)
                 {
-                    if (AIprepare[i].second->getAttackDistance() == 2)
+
+                    for (int m = 3; m < 6 && countboard == 0; m++)
                     {
-
-                        for (int m = 3; m < 6 && countboard == 0; m++)
+                        for (int n = 2; n < 6 && n >= 0 && countboard == 0;)
                         {
-                            for (int n = 2; n < 6 && n >= 0 && countboard == 0;)
+
+                            if (AIchessboard[m][n].first == -1)
                             {
+                                AIchessboard[m][n].first = AIprepare[i].first;
+                                AIchessboard[m][n].second = AIprepare[i].second;
+                                AIprepare[i].first = -1;
+                                AIprepare[i].second = nullptr;
 
-                                if (AIchessboard[m][n].first == -1)
-                                {
-                                    AIchessboard[m][n].first = AIprepare[i].first;
-                                    AIchessboard[m][n].second = AIprepare[i].second;
-                                    AIprepare[i].first = -1;
-                                    AIprepare[i].second = nullptr;
-
-                                    population++;
-                                    countboard++;
-
-                                }
-                                if (n <= 1 && n >= 0)
-                                    n--;
-                                else if (n == 5)
-                                    n = 1;
-                                else if (n >= 2 && n <= 4)
-                                    n++;
+                                population++;
+                                countboard++;
 
                             }
+                            if (n <= 1 && n >= 0)
+                                n--;
+                            else if (n == 5)
+                                n = 1;
+                            else if (n >= 2 && n <= 4)
+                                n++;
 
                         }
+
                     }
-                    else
+                }
+                else
+                {
+                    for (int m = 5; m >= 3 && countboard == 0; m--)
                     {
-                        for (int m = 5; m >= 3 && countboard == 0; m--)
+                        for (int n = 2; n < 6 && n >= 0 && countboard == 0;)
                         {
-                            for (int n = 2; n < 6 && n >= 0 && countboard == 0;)
+
+                            if (AIchessboard[m][n].first == -1)
                             {
-
-                                if (AIchessboard[m][n].first == -1)
-                                {
-                                    AIchessboard[m][n].first = AIprepare[i].first;
-                                    AIchessboard[m][n].second = AIprepare[i].second;
-                                    AIprepare[i].first = -1;
-                                    AIprepare[i].second = nullptr;
-                                    population++;
-                                    countboard++;
+                                AIchessboard[m][n].first = AIprepare[i].first;
+                                AIchessboard[m][n].second = AIprepare[i].second;
+                                AIprepare[i].first = -1;
+                                AIprepare[i].second = nullptr;
+                                population++;
+                                countboard++;
 
 
 
-                                }
-                                if (n <= 1 && n >= 0) {
-                                    n--;
-                                }
-
-                                else if (n == 5) {
-                                    n = 1;
-                                }
-                                else if (n >= 2 && n <= 4) {
-                                    n++;
-                                }
+                            }
+                            if (n <= 1 && n >= 0) {
+                                n--;
                             }
 
+                            else if (n == 5) {
+                                n = 1;
+                            }
+                            else if (n >= 2 && n <= 4) {
+                                n++;
+                            }
                         }
 
                     }
 
                 }
-            }
 
+            }
         }
 
-    
+    }
+
+
 
 
 

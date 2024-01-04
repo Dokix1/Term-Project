@@ -336,10 +336,7 @@ void BattleScene::Battle() {
                     oHero[min_no] = nullptr;
                 }
 
-                // 延迟调用函数，停留1秒
-                this->scheduleOnce([&](float dt) {
-                    // 在这里执行停留后的操作
-                    }, 1.0f, "delayedCallback");
+               
             }
             /* else {
                  float moveDistance = 100.0f; // 移动距离
@@ -407,11 +404,7 @@ void BattleScene::Battle() {
                     mHero.erase(mHero.begin() + min_no);
                 }
 
-                // 延迟调用函数，停留1秒
-                this->scheduleOnce([&](float dt) {
-                    // 在这里执行停留后的操作
-                    mHero[min_no]->bloodbar->setScaleX(mHero[min_no]->getHP() / mHero[min_no]->getFullHP());
-                    }, 1.0f, "delayedCallback");
+               
             }
             /* else {
                  float moveDistance = 100.0f; // 移动距离
