@@ -232,51 +232,7 @@ bool BattleScene::init() {
                     chessboardBattle[i][j].second->setOpacity(255);
                 }
             }
-            //点击屏幕触发英雄移动
-            auto touchlistener = EventListenerMouse::create();
-
             
-            /* 创建小小英雄+血条 */
-            m_pSprite = CCSprite::create("LittleHero/ikun.png");
-            m_pblood = CCSprite::create("bloodbar/littleblood.png");
-            m_pbloodback = CCSprite::create("bloodbar/littlebloodback.png");
-
-            m_penemy = CCSprite::create("LittleHero/enemy.png");
-            m_penemyblood = CCSprite::create("bloodbar/enemyblood.png");
-            m_penemybloodback = CCSprite::create("bloodbar/littlebloodback.png");
-
-            // 放置小小英雄 我方
-            m_pSprite->setPosition(ccp(185, 276));
-            m_pbloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
-            m_pblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
-            m_pbloodback->setPosition(ccp(120, 160));
-            m_pbloodback->setScale(0.4);
-            m_pblood->setPosition(ccp(72, 80));
-
-            m_pSprite->addChild(m_pbloodback);
-            m_pbloodback->addChild(m_pblood);
-            addChild(m_pSprite, 0);
-
-            //敌方
-            m_penemy->setPosition(ccp(1020, 800));
-            m_penemybloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
-            m_penemyblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
-            m_penemybloodback->setPosition(ccp(130, 140));
-            m_penemybloodback->setScale(0.4);
-            m_penemyblood->setPosition(ccp(72, 80));
-
-            m_penemy->addChild(m_penemybloodback);
-            m_penemybloodback->addChild(m_penemyblood);
-            addChild(m_penemy, 0);
-            
-            //血条初始化
-           // m_penemyblood->setScaleX(enemyhero_current_blood / enemyhero_max_blood);
-
-            //// 设置鼠标点击事件监听
-            auto listener = EventListenerTouchOneByOne::create();
-            listener->onTouchBegan = CC_CALLBACK_2(BattleScene::onTouchBeganLITTLE, this);
-            _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
-
          
            //Battle(); //对战
 
@@ -288,6 +244,51 @@ bool BattleScene::init() {
 
 /* 英雄移动+对战 */
 void BattleScene::Battle() {
+    //点击屏幕触发英雄移动
+    auto touchlistener = EventListenerMouse::create();
+
+
+    /* 创建小小英雄+血条 */
+    m_pSprite = CCSprite::create("LittleHero/ikun.png");
+    m_pblood = CCSprite::create("bloodbar/littleblood.png");
+    m_pbloodback = CCSprite::create("bloodbar/littlebloodback.png");
+
+    m_penemy = CCSprite::create("LittleHero/enemy.png");
+    m_penemyblood = CCSprite::create("bloodbar/enemyblood.png");
+    m_penemybloodback = CCSprite::create("bloodbar/littlebloodback.png");
+
+    // 放置小小英雄 我方
+    m_pSprite->setPosition(ccp(185, 276));
+    m_pbloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
+    m_pblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
+    m_pbloodback->setPosition(ccp(120, 160));
+    m_pbloodback->setScale(0.4);
+    m_pblood->setPosition(ccp(72, 80));
+
+    m_pSprite->addChild(m_pbloodback);
+    m_pbloodback->addChild(m_pblood);
+    addChild(m_pSprite, 0);
+
+    //敌方
+    m_penemy->setPosition(ccp(1020, 800));
+    m_penemybloodback->setAnchorPoint(Vec2(0.8, 0.5));  // 设置锚点
+    m_penemyblood->setAnchorPoint(Vec2(0.2, 0.5));  // 设置锚点
+    m_penemybloodback->setPosition(ccp(130, 140));
+    m_penemybloodback->setScale(0.4);
+    m_penemyblood->setPosition(ccp(72, 80));
+
+    m_penemy->addChild(m_penemybloodback);
+    m_penemybloodback->addChild(m_penemyblood);
+    addChild(m_penemy, 0);
+
+    //血条初始化
+   // m_penemyblood->setScaleX(enemyhero_current_blood / enemyhero_max_blood);
+
+    //// 设置鼠标点击事件监听
+    auto listener = EventListenerTouchOneByOne::create();
+    listener->onTouchBegan = CC_CALLBACK_2(BattleScene::onTouchBeganLITTLE, this);
+    _eventDispatcher->addEventListenerWithSceneGraphPriority(listener, this);
+
     int myHero = 0; //我方英雄数
     int opHero = 0; //对方英雄数
     vector<Hero*>mHero, oHero;
@@ -461,7 +462,7 @@ void BattleScene::Battle() {
         playscene->currentTime = playscene->totalTime;
         playscene->schedule(schedule_selector(PlayingScene::updateProgressBar), 0.01f);
         Director::getInstance()->popScene();
-        }, 3.0f, "delayedCallback");
+        }, 5.0f, "delayedCallback");
 }
 
 //小小英雄移动

@@ -457,7 +457,7 @@ bool PlayingScene::init() {
     addChild(timeLabel);
 
     //初始化时间
-    totalTime = 10.0f;
+    totalTime = 20.0f;
     currentTime = totalTime;
 
     //启动定时器
